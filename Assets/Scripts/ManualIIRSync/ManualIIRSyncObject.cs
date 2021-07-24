@@ -107,6 +107,7 @@ public class ManualIIRSyncObject : UdonSharpBehaviour
 	{
 		if( masterMoving )
 		{
+			/*
 			Vector3 ea = transform.localRotation.eulerAngles;
 			if( ea.x > 180 )
 			{
@@ -120,6 +121,7 @@ public class ManualIIRSyncObject : UdonSharpBehaviour
 				ea.z = Mathf.Round( ea.z / 15.0f ) * 15.0f;
 				transform.localRotation =  Quaternion.Euler( ea );
 			}
+			*/
 			if( Debug )
 			{
 				Vector4 col = GetComponent<MeshRenderer>().material.GetVector( "_Color" );
@@ -127,6 +129,8 @@ public class ManualIIRSyncObject : UdonSharpBehaviour
 				GetComponent<MeshRenderer>().material.SetVector( "_Color", col );
 			}
 			fDeltaMasterSendUpdateTime += Time.deltaTime;
+			
+			// Don't send location more than 20 FPS.
 			if( fDeltaMasterSendUpdateTime > 0.05f )
 				SendMasterMove();
 		}
