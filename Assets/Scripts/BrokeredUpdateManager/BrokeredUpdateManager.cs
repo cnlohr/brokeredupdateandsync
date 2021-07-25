@@ -59,7 +59,6 @@ public class BrokeredUpdateManager : UdonSharpBehaviour
 	
 	void DoInitialize()
 	{
-		Debug.Log( $"BROKER INIT {MAX_UPDATE_COMPS}" );
 		bInitialized = true;
 		updateObjectList = new Component[MAX_UPDATE_COMPS];
 		updateObjectListCount = 0;
@@ -89,7 +88,7 @@ public class BrokeredUpdateManager : UdonSharpBehaviour
 		int i = Array.IndexOf( updateObjectList, go );
 		if( i >= 0 )
 		{
-			Array.Copy( updateObjectList, i + 1, updateObjectList, i, updateObjectListCount - i + 1 );
+			Array.Copy( updateObjectList, i + 1, updateObjectList, i, updateObjectListCount - i );
 			updateObjectListCount--;
 		}
 	}
@@ -110,7 +109,7 @@ public class BrokeredUpdateManager : UdonSharpBehaviour
 		int i = Array.IndexOf( slowUpdateList, go );
 		if( i >= 0 )
 		{
-			Array.Copy( slowUpdateList, i + 1, slowUpdateList, i, slowUpdateListCount - i  + 1 );
+			Array.Copy( slowUpdateList, i + 1, slowUpdateList, i, slowUpdateListCount - i );
 			slowUpdateListCount--;
 		}
 	}
