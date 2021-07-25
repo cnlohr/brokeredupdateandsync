@@ -14,12 +14,15 @@ pick up objects, place them down and stand on them once placed.  I.e. nothing
 that is effected by gravity and nothing that keeps moving after the player has
 let go.
 
-(1) Add the BrokeredUpdateManager object to your scene, it doesn't matter where
-(2) Add the BrokeredSync object to your scene.
+1. Add the BrokeredUpdateManager object to your scene, it doesn't matter where
+2. Add the BrokeredSync object to your scene.
 
-To make more objects able to be sync'd, 
-(1) "Add Component" "VRC Pickup"
-(2) "Add Component" "BrokeredSync"
+To make more objects able to be sync'd, on your object you want brokered sync on,
+1. "Add Component" "VRC Pickup"
+2. "Add Component" "BrokeredSync"
+
+I recommend using a box collider. If you want the blocks to behave fun, uncheck
+"Use Gravity" and check "Is Kinematic" and uncheck "Is Trigger"
 
 NOTE: This relies upon BrokeredUpdateManager, which is included in the
 unitypackage.
