@@ -21,6 +21,12 @@ public class BrokeredSync : UdonSharpBehaviour
 	private bool masterMoving;
 	private bool firstUpdateSlave;
 	private float fDeltaMasterSendUpdateTime;
+
+	public void LogBlockState()
+	{
+		Debug.Log( $"SYNCMARK\t{gameObject.name}\t{transform.localPosition.x:F3},{transform.localPosition.y:F3},{transform.localPosition.z:F3}\t{transform.localRotation.x:F3},{transform.localRotation.y:F3},{transform.localRotation.z:F3},{transform.localRotation.w:F3}" );
+		
+	}
 	
     void Start()
     {
