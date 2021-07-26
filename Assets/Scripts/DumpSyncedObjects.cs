@@ -26,4 +26,5 @@ public class DumpSyncedObjects : UdonSharpBehaviour
 		}
 		Debug.Log( "DUMPED OBJECTS ================" );
 	}
+
 }
