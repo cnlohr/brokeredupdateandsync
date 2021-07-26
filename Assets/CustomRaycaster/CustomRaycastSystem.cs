@@ -28,6 +28,7 @@ public class CustomRaycastSystem : UdonSharpBehaviour
 	void Update()
 	{
 		VRCPlayerApi localPlayer = Networking.LocalPlayer;
+		if( localPlayer == null ) return;
 
 		for( currentHandID = 0; currentHandID < (inVR?2:1); currentHandID++ )
 		{

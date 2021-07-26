@@ -86,12 +86,22 @@ public class BrokeredSync : UdonSharpBehaviour
 			col.z = ( col.z + 0.01f ) % 1;
 			GetComponent<MeshRenderer>().material.SetVector( "_Color", col );
 		}
+		
+		if( !syncMoving )
+		{
+			//We were released before we got the update.
+			transform.localPosition = syncPosition;
+			transform.localRotation = syncRotation;
+			wasMoving = false;
+			brokeredUpdateManager.UnregisterSubscription( this );
+		}
 
 		if( !masterMoving )
 		{
 			if( !wasMoving && syncMoving )
 			{
 				brokeredUpdateManager.RegisterSubscription( this );
+				wasMoving = true;
 			}
 		}
 		else
