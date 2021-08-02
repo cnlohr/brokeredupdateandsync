@@ -12,8 +12,12 @@ public class BrokeredSync : UdonSharpBehaviour
 	[UdonSynced] private bool       syncMoving;
 	[UdonSynced] private Quaternion syncRotation;
 
+	private Vector3                 lastSyncPosition;
+	private Quaternion              lastSyncRotation;
+
 	public bool bDebug;
 	public bool bSnap;
+	public bool bHeld;
 	
 	private bool wasMoving;
 	private Collider thisCollider;
@@ -31,6 +35,8 @@ public class BrokeredSync : UdonSharpBehaviour
     void Start()
     {
 		brokeredUpdateManager = GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>();
+		brokeredUpdateManager.RegisterSnailUpdate( this );
+
         thisCollider = GetComponent<Collider>();
 		
 		if( Networking.IsMaster )
@@ -47,13 +53,42 @@ public class BrokeredSync : UdonSharpBehaviour
 		}
 		wasMoving = false;
 		masterMoving = false;
+		bHeld = false;
     }
+	
+	public void SnailUpdate()
+	{
+		if( Networking.IsOwner( gameObject ) )
+		{
+			if( !syncMoving )
+			{
+				syncPosition = transform.localPosition;
+				syncRotation = transform.localRotation;
+				RequestSerialization();
+			}
+		}
+	}
 
 	public void SendMasterMove()
 	{
 		syncPosition = transform.localPosition;
 		syncRotation = transform.localRotation;
 		
+		// If moving less than 2cm or 1 degree between updates, freeze.
+		if( ( syncPosition - lastSyncPosition ).magnitude < 0.002 && 
+			 Quaternion.Angle( syncRotation, lastSyncRotation) < 1 &&
+			 !bHeld )
+		{
+			// Stop Updating
+			brokeredUpdateManager.UnregisterSubscription( this );
+			syncMoving = false;
+			thisCollider.enabled = true;
+			masterMoving = false;
+		}
+	
+		lastSyncPosition = syncPosition;
+		lastSyncRotation = syncRotation;
+	
 		//We are being moved.
 		RequestSerialization();
 	}
@@ -66,19 +101,22 @@ public class BrokeredSync : UdonSharpBehaviour
 		fDeltaMasterSendUpdateTime = 10;
 		syncMoving = true;
 		masterMoving = true;
+		bHeld = true;
     }
 
+	// We don't use Drop here. We want to see if the object has actually stopped moving.
+	// But, even if it's paused and it's being held, don't stop.
     override public void OnDrop()
     {
-		brokeredUpdateManager.UnregisterSubscription( this );
-		syncMoving = false;
+		bHeld = false;
 		thisCollider.enabled = true;
-		masterMoving = false;
-		SendMasterMove();
-    }
+	}
 	
 	public override void OnDeserialization()
 	{
+		//Shouldn't really happen.
+		if( masterMoving ) return;
+
 		if( firstUpdateSlave )
 		{
 			transform.localPosition = syncPosition;

@@ -48,8 +48,11 @@ public class BrokeredUpdateManager : UdonSharpBehaviour
 	private Component [] slowUpdateList;
 	private int slowUpdateListCount;
 	private int slowUpdatePlace;
+	private Component [] snailUpdateList;
+	private int snailUpdateListCount;
+	private int snailUpdatePlace;
 	private bool bInitialized = false;
-
+	private float snailUpdateTime;
 	private int idIncrementer;
 	
 	public int GetIncrementingID()
@@ -65,6 +68,10 @@ public class BrokeredUpdateManager : UdonSharpBehaviour
 		slowUpdateList = new Component[MAX_SLOW_ROLL_COMPS];
 		slowUpdateListCount = 0;
 		slowUpdatePlace = 0;
+		snailUpdateList = new Component[MAX_SLOW_ROLL_COMPS];
+		snailUpdateListCount = 0;
+		snailUpdatePlace = 0;
+		snailUpdateTime = 0;
 	}
 
     void Start()
@@ -114,6 +121,28 @@ public class BrokeredUpdateManager : UdonSharpBehaviour
 		}
 	}
 
+
+	public void RegisterSnailUpdate( UdonSharpBehaviour go )
+	{
+		if( !bInitialized ) DoInitialize();
+		if( snailUpdateListCount < MAX_UPDATE_COMPS )
+		{
+			snailUpdateList[snailUpdateListCount] = (Component)go;
+			snailUpdateListCount++;
+		}
+	}
+
+	public void UnregisterSnailUpdate( UdonSharpBehaviour go )
+	{
+		if( !bInitialized ) DoInitialize();
+		int i = Array.IndexOf( snailUpdateList, go );
+		if( i >= 0 )
+		{
+			Array.Copy( snailUpdateList, i + 1, snailUpdateList, i, snailUpdateListCount - i );
+			snailUpdateListCount--;
+		}
+	}
+
 	public void Update()
 	{
 		if( !bInitialized ) DoInitialize();
@@ -140,6 +169,27 @@ public class BrokeredUpdateManager : UdonSharpBehaviour
 			if( slowUpdatePlace >= slowUpdateListCount )
 			{
 				slowUpdatePlace = 0;
+			}
+		}
+		
+		snailUpdateTime += Time.deltaTime;
+		if( snailUpdateTime > 0.05 )
+		{
+			snailUpdateTime = 0;
+			if( snailUpdateListCount > 0 )
+			{
+				UdonSharpBehaviour behavior = (UdonSharpBehaviour)snailUpdateList[snailUpdatePlace];
+				if( behavior != null )
+				{
+					behavior.SendCustomEvent("SnailUpdate");
+				}
+
+				snailUpdatePlace++;
+
+				if( snailUpdatePlace >= snailUpdateListCount )
+				{
+					snailUpdatePlace = 0;
+				}
 			}
 		}
 	}

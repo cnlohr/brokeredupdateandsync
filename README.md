@@ -14,8 +14,9 @@ pick up objects, place them down and stand on them once placed.  I.e. nothing
 that is effected by gravity and nothing that keeps moving after the player has
 let go.
 
-1. Add the BrokeredUpdateManager object to your scene, it doesn't matter where
-2. Add the BrokeredSync object to your scene.
+1. Add the BrokeredUpdateManager object to your scene, it doesn't matter where.
+2. Note: You must use exactly `BrokeredUpdateManager` name for the manager object.
+3. Add the BrokeredSync object to your scene.
 
 To make more objects able to be sync'd, on your object you want brokered sync on,
 1. "Add Component" "VRC Pickup"
@@ -34,6 +35,7 @@ BrokeredSync allows Udon scripts to:
 * Call GetIncrementingID() to get a unique ID, just a global counter.
 * Call `RegisterSubscription( this )` / `UnregisterSubscription( this )` in order to get 'BrokeredUpdate()` called every frame during the period between both calls.
 * Call `RegisterSlowUpdate( this )` / `UnregisterSlowUpdate( this )` in order to get `SlowUpdate()` called every several frames. (Between the two calls.) All slow updates are called round-robin.
+* Call `RegisterSnailUpdate( this )` / `UnregisterSnailUpdate( this )` in order to get `SnailUpdate()` called every several frames. (Between the two calls.) All snail updates are called round-robin, but with a delay.
 	
 			
 # General Instructions for running test map:
