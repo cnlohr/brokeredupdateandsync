@@ -28,6 +28,10 @@ I recommend using a box collider. If you want the blocks to behave fun, uncheck
 NOTE: This relies upon BrokeredUpdateManager, which is included in the
 unitypackage.
 
+**NOTE:** This is for kinematic objects, not objects which can roll around.  Though
+you may have some limited success, I have not yet made this disable objects once
+moving for the master.
+
 ## BrokeredUpdateManager
 
 BrokeredSync allows Udon scripts to:
