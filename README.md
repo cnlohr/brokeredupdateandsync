@@ -32,6 +32,20 @@ unitypackage.
 you may have some limited success, I have not yet made this disable objects once
 moving for the master.
 
+
+To use the Sync Manager, after being added to your world, you could do something like this:
+```
+	void Start()
+	{
+		GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>().RegisterSnailUpdate( this );
+	}
+	...
+	public void SnailUpdate()
+	{
+		// This gets called sometimes.
+	}
+``
+
 ## BrokeredUpdateManager
 
 BrokeredSync allows Udon scripts to:
