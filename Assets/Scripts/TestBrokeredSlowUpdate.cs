@@ -3,10 +3,11 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using BrokeredUpdates;
 
 public class TestBrokeredSlowUpdate : UdonSharpBehaviour
 {
-	private BrokeredUpdateManager brokeredUpdateManager;
+	private BrokeredUpdates.BrokeredUpdateManager brokeredUpdateManager;
 	private bool bOnList = false;
 	private Material m;
 

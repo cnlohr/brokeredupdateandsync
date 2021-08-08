@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: TestBrokeredSlowUpdate
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 7b17435e40e75484ebcd30c5f71fb923,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: cc7185f4cd9a81d47810c6817ab23503,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 4|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: BrokeredUpdateManager, Assembly-CSharp
+      Data: BrokeredUpdates.BrokeredUpdateManager, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

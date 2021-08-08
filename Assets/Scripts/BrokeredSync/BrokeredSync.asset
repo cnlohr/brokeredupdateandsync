@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: BrokeredSync
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 2961281cf1a64d942953cbfbd534111e,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: c09f8ed040a72174d86e80c2cd1a8b23,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -674,7 +674,7 @@ MonoBehaviour:
       Data: 41|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: BrokeredUpdateManager, Assembly-CSharp
+      Data: BrokeredUpdates.BrokeredUpdateManager, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
