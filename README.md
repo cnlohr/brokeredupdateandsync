@@ -54,11 +54,16 @@ BrokeredSync allows Udon scripts to:
 * Call `RegisterSubscription( this )` / `UnregisterSubscription( this )` in order to get 'BrokeredUpdate()` called every frame during the period between both calls.
 * Call `RegisterSlowUpdate( this )` / `UnregisterSlowUpdate( this )` in order to get `SlowUpdate()` called every several frames. (Between the two calls.) All slow updates are called round-robin.
 * Call `RegisterSnailUpdate( this )` / `UnregisterSnailUpdate( this )` in order to get `SnailUpdate()` called every several frames. (Between the two calls.) All snail updates are called round-robin, but with a delay.
-	
-			
+
 # General Instructions for running test map:
  * Install VRC Worlds SDK 3.0
  * Install Udon Sharp
  * Install CyanEmu
  * Install AudioLink
  * Install TXL Player
+
+### Future work:
+
+1. Further investigate the quirks of not getting deserialization events.
+2. Try more traditionally attaching the object to a player when it's moving instead of just smoothing the lerp {though I personally prefer the smoothed lerp that I'm doing now to player attachment}.
+3. Handle disabling motion when object actually stops moving for it's master.
