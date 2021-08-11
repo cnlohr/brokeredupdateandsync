@@ -44,7 +44,7 @@ To use the Sync Manager, after being added to your world, you could do something
 	{
 		// This gets called sometimes.
 	}
-``
+```
 
 ## BrokeredUpdateManager
 
