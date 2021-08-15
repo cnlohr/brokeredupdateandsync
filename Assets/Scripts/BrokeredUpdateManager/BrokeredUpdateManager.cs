@@ -43,13 +43,16 @@ namespace BrokeredUpdates
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class BrokeredUpdateManager : UdonSharpBehaviour
 	{
-		const int MAX_UPDATE_COMPS = 1000;
-		const int MAX_SLOW_ROLL_COMPS = 1000;
+		const int MAX_UPDATE_COMPS = 2000;
+		const int MAX_SLOW_ROLL_COMPS = 2000;
 		private Component [] updateObjectList;
 		private int updateObjectListCount;
 		private Component [] slowUpdateList;
 		private int slowUpdateListCount;
 		private int slowUpdatePlace;
+		private Component [] slowObjectSyncUpdateList;
+		private int slowObjectSyncUpdateListCount;
+		private int slowObjectSyncUpdatePlace;
 		private Component [] snailUpdateList;
 		private int snailUpdateListCount;
 		private int snailUpdatePlace;
@@ -67,9 +70,15 @@ namespace BrokeredUpdates
 			bInitialized = true;
 			updateObjectList = new Component[MAX_UPDATE_COMPS];
 			updateObjectListCount = 0;
+			
+			slowObjectSyncUpdateList = new Component[MAX_SLOW_ROLL_COMPS];
+			slowObjectSyncUpdateListCount = 0;
+			slowObjectSyncUpdatePlace = 0;
+			
 			slowUpdateList = new Component[MAX_SLOW_ROLL_COMPS];
 			slowUpdateListCount = 0;
 			slowUpdatePlace = 0;
+			
 			snailUpdateList = new Component[MAX_SLOW_ROLL_COMPS];
 			snailUpdateListCount = 0;
 			snailUpdatePlace = 0;
@@ -124,6 +133,27 @@ namespace BrokeredUpdates
 		}
 
 
+		public void RegisterSlowObjectSyncUpdate( UdonSharpBehaviour go )
+		{
+			if( !bInitialized ) DoInitialize();
+			if( slowObjectSyncUpdateListCount < MAX_UPDATE_COMPS )
+			{
+				slowObjectSyncUpdateList[slowObjectSyncUpdateListCount] = (Component)go;
+				slowObjectSyncUpdateListCount++;
+			}
+		}
+
+		public void UnregisterSlowObjectSyncUpdate( UdonSharpBehaviour go )
+		{
+			if( !bInitialized ) DoInitialize();
+			int i = Array.IndexOf( slowObjectSyncUpdateList, go );
+			if( i >= 0 )
+			{
+				Array.Copy( slowObjectSyncUpdateList, i + 1, slowObjectSyncUpdateList, i, slowObjectSyncUpdateListCount - i );
+				slowObjectSyncUpdateListCount--;
+			}
+		}
+
 		public void RegisterSnailUpdate( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
@@ -171,6 +201,22 @@ namespace BrokeredUpdates
 				if( slowUpdatePlace >= slowUpdateListCount )
 				{
 					slowUpdatePlace = 0;
+				}
+			}
+			
+			if( slowObjectSyncUpdateListCount > 0 )
+			{
+				UdonSharpBehaviour behavior = (UdonSharpBehaviour)slowObjectSyncUpdateList[slowObjectSyncUpdatePlace];
+				if( behavior != null )
+				{
+					behavior.SendCustomEvent("SlowObjectSyncUpdate");
+				}
+
+				slowObjectSyncUpdatePlace++;
+
+				if( slowObjectSyncUpdatePlace >= slowObjectSyncUpdateListCount )
+				{
+					slowObjectSyncUpdatePlace = 0;
 				}
 			}
 			
