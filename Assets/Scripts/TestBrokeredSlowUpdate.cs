@@ -16,7 +16,7 @@ public class TestBrokeredSlowUpdate : UdonSharpBehaviour
 		brokeredUpdateManager = GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>();
 	}
 	
-	public void SlowUpdate()
+	public void _SlowUpdate()
 	{
 		Vector4 col = GetComponent<MeshRenderer>().material.GetVector( "_Color" );
 		col.x = ( col.x + 0.01f ) % 1;
@@ -30,12 +30,12 @@ public class TestBrokeredSlowUpdate : UdonSharpBehaviour
 		if( bOnList )
 		{
 			bOnList = false;
-			brokeredUpdateManager.UnregisterSlowUpdate( this );			
+			brokeredUpdateManager._UnregisterSlowUpdate( this );			
 		}
 		else
 		{
 			bOnList = true;
-			brokeredUpdateManager.RegisterSlowUpdate( this );
+			brokeredUpdateManager._RegisterSlowUpdate( this );
 		}
 	}
 }

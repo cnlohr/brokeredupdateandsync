@@ -16,7 +16,7 @@ public class TestBrokeredFastUpdate : UdonSharpBehaviour
 		brokeredUpdateManager = GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>();
 	}
 	
-	public void BrokeredUpdate()
+	public void _BrokeredUpdate()
 	{
 		Vector4 col = GetComponent<MeshRenderer>().material.GetVector( "_Color" );
 		col.x = ( col.x + 0.01f ) % 1;
@@ -30,12 +30,12 @@ public class TestBrokeredFastUpdate : UdonSharpBehaviour
 		if( bOnList )
 		{
 			bOnList = false;
-			brokeredUpdateManager.UnregisterSubscription( this );			
+			brokeredUpdateManager._UnregisterSubscription( this );			
 		}
 		else
 		{
 			bOnList = true;
-			brokeredUpdateManager.RegisterSubscription( this );
+			brokeredUpdateManager._RegisterSubscription( this );
 		}
 	}
 }

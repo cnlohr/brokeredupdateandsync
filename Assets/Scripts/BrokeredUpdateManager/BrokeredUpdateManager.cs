@@ -10,12 +10,12 @@
 		* Add this file as an Udon Sharp Behavior to that object.
 		
 	Usage:
-		* Call GetIncrementingID() to get a unique ID, just a global counter.
-		* Call `RegisterSubscription( this )` / `UnregisterSubscription( this )`
-			in order to get 'BrokeredUpdate()` called every frame during
+		* Call _GetIncrementingID() to get a unique ID, just a global counter.
+		* Call `_RegisterSubscription( this )` / `_UnregisterSubscription( this )`
+			in order to get `_BrokeredUpdate()` called every frame during
 			the period between both calls.
-		* Call `RegisterSlowUpdate( this )` / `UnregisterSlowUpdate( this )`
-			in order to get `SlowUpdate()` called every several frames.
+		* Call `_RegisterSlowUpdate( this )` / `_UnregisterSlowUpdate( this )`
+			in order to get `_SlowUpdate()` called every several frames.
 			(Between the two calls.) All slow updates are called round-robin.
 			
 	You can get a copy of a references to this object by setting the reference
@@ -60,7 +60,7 @@ namespace BrokeredUpdates
 		private float snailUpdateTime;
 		private int idIncrementer;
 		
-		public int GetIncrementingID()
+		public int _GetIncrementingID()
 		{
 			return idIncrementer++;
 		}
@@ -90,7 +90,7 @@ namespace BrokeredUpdates
 			if( !bInitialized ) DoInitialize();
 		}
 
-		public void RegisterSubscription( UdonSharpBehaviour go )
+		public void _RegisterSubscription( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
 			if( updateObjectListCount < MAX_SLOW_ROLL_COMPS )
@@ -100,7 +100,7 @@ namespace BrokeredUpdates
 			}
 		}
 		
-		public void UnregisterSubscription( UdonSharpBehaviour go )
+		public void _UnregisterSubscription( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
 			int i = Array.IndexOf( updateObjectList, go );
@@ -111,7 +111,7 @@ namespace BrokeredUpdates
 			}
 		}
 
-		public void RegisterSlowUpdate( UdonSharpBehaviour go )
+		public void _RegisterSlowUpdate( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
 			if( slowUpdateListCount < MAX_UPDATE_COMPS )
@@ -121,7 +121,7 @@ namespace BrokeredUpdates
 			}
 		}
 
-		public void UnregisterSlowUpdate( UdonSharpBehaviour go )
+		public void _UnregisterSlowUpdate( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
 			int i = Array.IndexOf( slowUpdateList, go );
@@ -133,7 +133,7 @@ namespace BrokeredUpdates
 		}
 
 
-		public void RegisterSlowObjectSyncUpdate( UdonSharpBehaviour go )
+		public void _RegisterSlowObjectSyncUpdate( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
 			if( slowObjectSyncUpdateListCount < MAX_UPDATE_COMPS )
@@ -143,7 +143,7 @@ namespace BrokeredUpdates
 			}
 		}
 
-		public void UnregisterSlowObjectSyncUpdate( UdonSharpBehaviour go )
+		public void _UnregisterSlowObjectSyncUpdate( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
 			int i = Array.IndexOf( slowObjectSyncUpdateList, go );
@@ -154,7 +154,7 @@ namespace BrokeredUpdates
 			}
 		}
 
-		public void RegisterSnailUpdate( UdonSharpBehaviour go )
+		public void _RegisterSnailUpdate( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
 			if( snailUpdateListCount < MAX_UPDATE_COMPS )
@@ -164,7 +164,7 @@ namespace BrokeredUpdates
 			}
 		}
 
-		public void UnregisterSnailUpdate( UdonSharpBehaviour go )
+		public void _UnregisterSnailUpdate( UdonSharpBehaviour go )
 		{
 			if( !bInitialized ) DoInitialize();
 			int i = Array.IndexOf( snailUpdateList, go );
@@ -175,7 +175,7 @@ namespace BrokeredUpdates
 			}
 		}
 
-		public void Update()
+		void Update()
 		{
 			if( !bInitialized ) DoInitialize();
 			int i;
@@ -184,7 +184,7 @@ namespace BrokeredUpdates
 				UdonSharpBehaviour behavior = (UdonSharpBehaviour)updateObjectList[i];
 				if( behavior != null )
 				{
-					behavior.SendCustomEvent("BrokeredUpdate");
+					behavior.SendCustomEvent("_BrokeredUpdate");
 				}
 			}
 			
@@ -193,7 +193,7 @@ namespace BrokeredUpdates
 				UdonSharpBehaviour behavior = (UdonSharpBehaviour)slowUpdateList[slowUpdatePlace];
 				if( behavior != null )
 				{
-					behavior.SendCustomEvent("SlowUpdate");
+					behavior.SendCustomEvent("_SlowUpdate");
 				}
 
 				slowUpdatePlace++;
@@ -209,7 +209,7 @@ namespace BrokeredUpdates
 				UdonSharpBehaviour behavior = (UdonSharpBehaviour)slowObjectSyncUpdateList[slowObjectSyncUpdatePlace];
 				if( behavior != null )
 				{
-					behavior.SendCustomEvent("SlowObjectSyncUpdate");
+					behavior.SendCustomEvent("_SlowObjectSyncUpdate");
 				}
 
 				slowObjectSyncUpdatePlace++;
@@ -229,7 +229,7 @@ namespace BrokeredUpdates
 					UdonSharpBehaviour behavior = (UdonSharpBehaviour)snailUpdateList[snailUpdatePlace];
 					if( behavior != null )
 					{
-						behavior.SendCustomEvent("SnailUpdate");
+						behavior.SendCustomEvent("_SnailUpdate");
 					}
 
 					snailUpdatePlace++;

@@ -37,10 +37,10 @@ To use the Sync Manager, after being added to your world, you could do something
 ```
 	void Start()
 	{
-		GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>().RegisterSnailUpdate( this );
+		GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>()._RegisterSnailUpdate( this );
 	}
 	...
-	public void SnailUpdate()
+	public void _SnailUpdate()
 	{
 		// This gets called sometimes.
 	}
@@ -50,10 +50,12 @@ To use the Sync Manager, after being added to your world, you could do something
 
 BrokeredSync allows Udon scripts to:
 
-* Call GetIncrementingID() to get a unique ID, just a global counter.
-* Call `RegisterSubscription( this )` / `UnregisterSubscription( this )` in order to get 'BrokeredUpdate()` called every frame during the period between both calls.
-* Call `RegisterSlowUpdate( this )` / `UnregisterSlowUpdate( this )` in order to get `SlowUpdate()` called every several frames. (Between the two calls.) All slow updates are called round-robin.
-* Call `RegisterSnailUpdate( this )` / `UnregisterSnailUpdate( this )` in order to get `SnailUpdate()` called every several frames. (Between the two calls.) All snail updates are called round-robin, but with a delay.
+* Call _GetIncrementingID() to get a unique ID, just a global counter.
+* Call `_RegisterSubscription( this )` / `_UnregisterSubscription( this )` in order to get '_BrokeredUpdate()` called every frame during the period between both calls.
+* Call `_RegisterSlowUpdate( this )` / `_UnregisterSlowUpdate( this )` in order to get `_SlowUpdate()` called every several frames. (Between the two calls.) All slow updates are called round-robin.
+* Call `_RegisterSnailUpdate( this )` / `_UnregisterSnailUpdate( this )` in order to get `_SnailUpdate()` called every several frames. (Between the two calls.) All snail updates are called round-robin, but with a delay.
+
+Note SlowObjectSync functionality is internal - and used by the brokered sync object.
 
 # General Instructions for running test map:
  * Install VRC Worlds SDK 3.0

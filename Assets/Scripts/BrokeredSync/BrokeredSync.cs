@@ -34,16 +34,15 @@ namespace BrokeredUpdates
 		private bool bUseGravityOnRelease;
 		private bool bKinematicOnRelease;
 
-		public void LogBlockState()
+		public void _LogBlockState()
 		{
 			Debug.Log( $"SYNCMARK\t{gameObject.name}\t{transform.localPosition.x:F3},{transform.localPosition.y:F3},{transform.localPosition.z:F3}\t{transform.localRotation.x:F3},{transform.localRotation.y:F3},{transform.localRotation.z:F3},{transform.localRotation.w:F3}" );
-			
 		}
 		
 		void Start()
 		{
 			brokeredUpdateManager = GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>();
-			brokeredUpdateManager.RegisterSlowObjectSyncUpdate( this );
+			brokeredUpdateManager._RegisterSlowObjectSyncUpdate( this );
 
 			thisCollider = GetComponent<Collider>();
 			
@@ -79,7 +78,7 @@ namespace BrokeredUpdates
 			bHeld = false;
 		}
 		
-		public void SlowObjectSyncUpdate()
+		public void _SlowObjectSyncUpdate()
 		{
 			// In Udon, when loading, sometimes later joining clients miss OnDeserialization().
 			// This function will force all of the client's blocks to eventually line up to where
@@ -118,7 +117,7 @@ namespace BrokeredUpdates
 			}
 		}
 
-		public void SendMasterMove()
+		public void _SendMasterMove()
 		{
 			syncPosition = transform.localPosition;
 			syncRotation = transform.localRotation;
@@ -134,7 +133,7 @@ namespace BrokeredUpdates
 				if( fTimeStill > 1 || !Utilities.IsValid( GetComponent<Rigidbody>() ) || GetComponent<Rigidbody>().isKinematic )
 				{
 					// Stop Updating
-					brokeredUpdateManager.UnregisterSubscription( this );
+					brokeredUpdateManager._UnregisterSubscription( this );
 					
 					// Do this so if we were moving SUPER slowly, we actually stop.  TODO: How to disable motion?
 					if( Utilities.IsValid( GetComponent<Rigidbody>() ) )
@@ -163,7 +162,7 @@ namespace BrokeredUpdates
 		override public void OnPickup ()
 		{
 			if( bDisableColliderOnGrab ) thisCollider.enabled = false;
-			brokeredUpdateManager.RegisterSubscription( this );
+			brokeredUpdateManager._RegisterSubscription( this );
 			Networking.SetOwner( Networking.LocalPlayer, gameObject );
 			fDeltaMasterSendUpdateTime = 10;
 			syncMoving = true;
@@ -204,7 +203,7 @@ namespace BrokeredUpdates
 				transform.localPosition = syncPosition;
 				transform.localRotation = syncRotation;
 				wasMoving = false;
-				brokeredUpdateManager.UnregisterSubscription( this );
+				brokeredUpdateManager._UnregisterSubscription( this );
 				if( Utilities.IsValid( GetComponent<Rigidbody>() ) )
 				{
 					GetComponent<Rigidbody>().useGravity = bUseGravityOnRelease;
@@ -226,7 +225,7 @@ namespace BrokeredUpdates
 						GetComponent<Rigidbody>().useGravity = false;
 						GetComponent<Rigidbody>().isKinematic = true;
 					}
-					brokeredUpdateManager.RegisterSubscription( this );
+					brokeredUpdateManager._RegisterSubscription( this );
 					wasMoving = true;
 				}
 			}
@@ -240,7 +239,7 @@ namespace BrokeredUpdates
 			}
 		}
 		
-		public void BrokeredUpdate()
+		public void _BrokeredUpdate()
 		{
 			if( masterMoving )
 			{
@@ -268,7 +267,7 @@ namespace BrokeredUpdates
 				// Don't send location more than 20 FPS.
 				if( fDeltaMasterSendUpdateTime > 0.05f )
 				{
-					SendMasterMove();
+					_SendMasterMove();
 					fDeltaMasterSendUpdateTime = 0.0f;
 				}
 			}
@@ -308,7 +307,7 @@ namespace BrokeredUpdates
 							GetComponent<Rigidbody>().velocity = new Vector3( 0, 0, 0 );
 							GetComponent<Rigidbody>().Sleep();
 						}
-						brokeredUpdateManager.UnregisterSubscription( this );
+						brokeredUpdateManager._UnregisterSubscription( this );
 					}
 				}
 			}
