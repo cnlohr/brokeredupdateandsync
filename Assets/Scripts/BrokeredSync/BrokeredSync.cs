@@ -10,7 +10,7 @@ namespace BrokeredUpdates
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class BrokeredSync : UdonSharpBehaviour
 	{
-		[UdonSynced] private Vector3    syncPosition;
+		[UdonSynced] private Vector3    syncPosition = new Vector3( 0, 0, 0 );
 		[UdonSynced] private bool       syncMoving;
 		[UdonSynced] private Quaternion syncRotation;
 
