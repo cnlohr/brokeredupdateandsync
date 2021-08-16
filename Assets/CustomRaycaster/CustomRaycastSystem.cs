@@ -33,12 +33,23 @@ public class CustomRaycastSystem : UdonSharpBehaviour
 		for( currentHandID = 0; currentHandID < (inVR?2:1); currentHandID++ )
 		{
 			VRCPlayerApi.TrackingDataType hand;
-			if( !inVR ) hand = VRCPlayerApi.TrackingDataType.Head;
-			else if( currentHandID == 0 ) hand = VRCPlayerApi.TrackingDataType.LeftHand;
-			else hand = VRCPlayerApi.TrackingDataType.RightHand;
+			float rotationangle = 41.0f;
+			if( !inVR )
+			{
+				hand = VRCPlayerApi.TrackingDataType.Head;
+				rotationangle = 0;
+			}
+			else if( currentHandID == 0 )
+			{
+				hand = VRCPlayerApi.TrackingDataType.LeftHand;
+			}
+			else
+			{
+				hand = VRCPlayerApi.TrackingDataType.RightHand;
+			}
 			VRCPlayerApi.TrackingData xformHand = localPlayer.GetTrackingData( hand );
 			Vector3 Pos = xformHand.position;
-			Vector3 Dir = (xformHand.rotation * Quaternion.Euler(0.0f, 41.0f, 0.0f) ) * Vector3.forward;
+			Vector3 Dir = (xformHand.rotation * Quaternion.Euler(0.0f, rotationangle, 0.0f) ) * Vector3.forward;
 			
 			UdonBehaviour behavior;
 			
