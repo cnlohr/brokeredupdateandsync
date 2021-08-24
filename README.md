@@ -35,6 +35,8 @@ moving for the master.
 
 To use the Sync Manager, after being added to your world, you could do something like this:
 ```
+using BrokeredUpdates;
+...
 	void Start()
 	{
 		GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>()._RegisterSnailUpdate( this );
