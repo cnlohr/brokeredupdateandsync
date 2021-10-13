@@ -9,7 +9,7 @@
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" "Queue" = "Transparent-1000"  }
+		Tags { "RenderType"="Opaque" "Queue" = "Transparent-100"  }
 		LOD 100
 
 		Cull Off
