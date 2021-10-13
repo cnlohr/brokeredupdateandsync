@@ -2,17 +2,14 @@
 
 Map is live: https://vrchat.com/home/world/wrld_04bba9b6-cc9d-4abe-a44c-1d1046f8ce16
 
-![image](https://user-images.githubusercontent.com/2748168/132091759-6dec5fca-e4e6-4a3a-8589-d18ab70005e4.png)
+![image](https://user-images.githubusercontent.com/2748168/132143638-a45d870d-b561-4599-ab32-88ea7e2be25c.png)
 
 ## BrokeredSync
 
 Mechanism to do something similar to a VRCPickup, but much, much faster and
-able to easily handle 1,000+ objects per map and still hit 100+ FPS.
-
-Note that this only applies for things where you want players to be able to
-pick up objects, place them down and stand on them once placed.  I.e. nothing
-that is effected by gravity and nothing that keeps moving after the player has
-let go.
+able to easily handle 1,000+ objects per map and still hit 100+ FPS.  Note that
+unlike normal object sync, if you want complicated physics interaction this isn't
+quite as good.  But for basic object motion this is a fast option.
 
 1. Add the BrokeredUpdateManager object to your scene, it doesn't matter where.
 2. Note: You must use exactly `BrokeredUpdateManager` name for the manager object.
