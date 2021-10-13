@@ -8,8 +8,9 @@ Map is live: https://vrchat.com/home/world/wrld_04bba9b6-cc9d-4abe-a44c-1d1046f8
 
 Mechanism to do something similar to a VRCPickup, but much, much faster and
 able to easily handle 1,000+ objects per map and still hit 100+ FPS.  Note that
-unlike normal object sync, if you want complicated physics interaction this isn't
-quite as good.  But for basic object motion this is a fast option.
+unlike normal object sync, it does not fast sync objects that are inactive and then
+collided with.  But for basic object position control, kinematic or otherwise,
+this is a fast and reliable option. 
 
 1. Add the BrokeredUpdateManager object to your scene, it doesn't matter where.
 2. Note: You must use exactly `BrokeredUpdateManager` name for the manager object.
@@ -19,11 +20,8 @@ To make more objects able to be sync'd, on your object you want brokered sync on
 1. "Add Component" "VRC Pickup"
 2. "Add Component" "BrokeredSync"
 
-I recommend using a box collider. If you want the blocks to behave fun, uncheck
-"Use Gravity" and check "Is Kinematic" and uncheck "Is Trigger"
-
-NOTE: This relies upon BrokeredUpdateManager, which is included in the
-unitypackage.
+NOTE: This relies upon BrokeredUpdateManager, which is included in the unitypackage.
+You will need a BrokeredUpdateManager component somewhere in your scene.
 
 **NOTE:** This is for kinematic objects, not objects which can roll around.  Though
 you may have some limited success, I have not yet made this disable objects once
