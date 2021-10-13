@@ -205,6 +205,7 @@ namespace BrokeredUpdates
 		override public void OnPickup ()
 		{
 			if( bDisableColliderOnGrab ) thisCollider.enabled = false;
+			brokeredUpdateManager._UnregisterSubscription( this ); // In case it was already subscribed.
 			brokeredUpdateManager._RegisterSubscription( this );
 			Networking.SetOwner( Networking.LocalPlayer, gameObject );
 			fDeltaMasterSendUpdateTime = 10;
