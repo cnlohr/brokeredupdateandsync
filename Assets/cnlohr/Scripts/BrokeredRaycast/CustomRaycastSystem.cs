@@ -13,7 +13,7 @@ namespace BrokeredUpdates
 		public LayerMask rmask;
 		public RaycastHit lastHit;
 		public int currentHandID;
-		public Component [] lasthits;
+		public Transform [] lasthits;
 		
 		private bool inVR;
 
@@ -25,7 +25,7 @@ namespace BrokeredUpdates
 			{
 				inVR = true;
 			}
-			lasthits = new Component[2];
+			lasthits = new Transform[2];
 		}
 		
 		void Update()
@@ -54,30 +54,30 @@ namespace BrokeredUpdates
 				Vector3 Pos = xformHand.position;
 				Vector3 Dir = (xformHand.rotation * Quaternion.Euler(0.0f, rotationangle, 0.0f) ) * Vector3.forward;
 				
-				UdonBehaviour behavior;
+				Transform transform;
 				
 				if (!Physics.Raycast( Pos, Dir, out lastHit, 3.0f, rmask.value ) || ( lastHit.transform == null ) )
 				{
-					behavior = null;
+					transform = null;
 				}
 				else
 				{
-					behavior = (UdonBehaviour)lastHit.transform.GetComponent( typeof(UdonBehaviour) );
+					transform = lastHit.transform;
 				}
 				
-				Debug.Log( behavior );
-
-				if( behavior != lasthits[currentHandID] && lasthits[currentHandID] != null )
+				if( transform != lasthits[currentHandID] && lasthits[currentHandID] != null )
 				{
-					((UdonBehaviour)lasthits[currentHandID]).SendCustomEvent("RaycastIntersectionLeave");
+					Component [] behaviors = lasthits[currentHandID].GetComponents( typeof(UdonBehaviour) );
+					foreach( Component u in behaviors )
+						((UdonBehaviour)u).SendCustomEvent("RaycastIntersectionLeave");
 					lasthits[currentHandID] = null;
 				}
-				if( behavior != null )
+				if( transform != null )
 				{
-					Debug.Log( "SEC1\n");
-					behavior.SendCustomEvent("RaycastIntersectedMotion");
-					Debug.Log( "SEC2\n");
-					lasthits[currentHandID] = behavior;
+					Component [] behaviors = transform.GetComponents( typeof(UdonBehaviour) );
+					foreach( Component u in behaviors )
+						((UdonBehaviour)u).SendCustomEvent("RaycastIntersectedMotion");
+					lasthits[currentHandID] = transform;
 				}
 			}
 		}

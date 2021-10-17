@@ -149,8 +149,7 @@ namespace BrokeredUpdates
 			// This function will force all of the client's blocks to eventually line up to where
 			// they're supposed to be.
 			
-			// XXX TODO: REVISIT THIS WITH MORE TESTING!!!  It seems buggy when you cause motion to
-			// happen but Unity is unaware of it.
+			// It seems buggy when you cause motion to happen but Unity is unaware of it.
 			
 			// But, don't accidentally move it.  (note: syncPosition.magnitude > 0 is a not great way...
 			if( !masterMoving )

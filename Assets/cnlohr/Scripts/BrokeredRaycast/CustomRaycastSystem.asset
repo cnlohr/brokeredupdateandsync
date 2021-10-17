@@ -250,7 +250,7 @@ MonoBehaviour:
       Data: 16|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UnityEngine.Component[], UnityEngine.CoreModule
+      Data: UnityEngine.Transform[], UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 
@@ -262,7 +262,7 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineComponentArray
+      Data: UnityEngineTransformArray
     - Name: symbolOriginalName
       Entry: 1
       Data: lasthits

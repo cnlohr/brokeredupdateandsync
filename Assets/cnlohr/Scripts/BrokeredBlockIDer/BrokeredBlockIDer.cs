@@ -25,8 +25,9 @@ namespace BrokeredUpdates
 		[UdonSynced] private int blockID = 0;
 		private int instanceID;
 		private Rigidbody thisRigidBody;
-		private float fSnappers = 0.7f;
-		private int fCursor = 0;
+		private const float fSnappers = 0.69f;
+		private float fCursor0 = 0;
+		private float fCursor1 = 0;
 		private int [] useFlags;
 
 		void Start()
@@ -38,9 +39,10 @@ namespace BrokeredUpdates
 			if( Networking.IsMaster )
 				blockID = defaultBlockID;
 
-			fCursor = 0;
+			fCursor0 = 0;
+			fCursor1 = 0;
 
-#if !COMPILER_UDONSHARP && UNITY_EDITOR
+#if UNITY_EDITOR
 			blockID = defaultBlockID;
 #endif
 			_UpdateID();
@@ -64,7 +66,7 @@ namespace BrokeredUpdates
 			MaterialPropertyBlock block = new MaterialPropertyBlock();
 			MeshRenderer mr = GetComponent<MeshRenderer>();
 			//mr.GetPropertyBlock(block);
-			block.SetVector( "_InstanceID", new Vector4( instanceID, blockID, fCursor, 0 ) );
+			block.SetVector( "_InstanceID", new Vector4( instanceID, blockID, fCursor0, fCursor1 ) );
 			mr.SetPropertyBlock(block);
 		}
 
@@ -114,7 +116,7 @@ namespace BrokeredUpdates
 			_UpdateID();
 		}
 		
-		public bool SnapNow()
+		public bool _SnapNow()
 		{
 			bool dosnap = true;
 			if( Utilities.IsValid( GetComponent<Rigidbody>() ) )
@@ -137,6 +139,11 @@ namespace BrokeredUpdates
 			}
 			return false;
 		}
+		
+		public void _Nudge()
+		{
+			transform.localPosition = new Vector3( transform.localPosition.x, transform.localPosition.y + fSnappers, transform.localPosition.z );
+		}
 
 		override public void OnDrop()
 		{
@@ -145,38 +152,54 @@ namespace BrokeredUpdates
 			brokeredUpdateManager._UnregisterSubscription( this );
 
 			//If the object has a rigid body, don't snap.
-			SnapNow();
+			_SnapNow();
 			_UpdateID();
 		}
 
-		override public void RaycastIntersectionLeave()
+		public void RaycastIntersectionLeave()
 		{
-			Debug.Log( "RaycastIntersectionLeave" );
-			/*
 			int hid = customRaycastSystem.currentHandID;
 			if( hid == 0 )
 			{
-				fCursor = 0;
-				_UpdateID();
-			}*/
+				fCursor0 = 0;
+			}
+			else if( hid == 1 )
+			{
+				fCursor1 = 0;
+			}
+			_UpdateID();
 		}
 		
-		override public void RaycastIntersectedMotion()
+		public void RaycastIntersectedMotion()
 		{
-			Debug.Log( $"RaycastIntersectedMotion" );
-/*			int hid = customRaycastSystem.currentHandID;
-			if( hid == 0 )
+			int hid = customRaycastSystem.currentHandID;
+			//if( hid == 0 )
 			{
 				float triggerQty = 
 					Mathf.Max(Input.GetAxisRaw((hid==0)?"Oculus_CrossPlatform_PrimaryIndexTrigger":"Oculus_CrossPlatform_SecondaryIndexTrigger"),
-					Input.GetMouseButton(0) ? 1 : 0);
+					Input.GetMouseButton(1) ? 1 : 0);
 
-				Vector2 hc = customRaycastSystem.lastHit.textureCoord;
-				fCursor = ((int)(hc.x*16)) + ((int)(hc.y*16))*16 + 1;
-				if( triggerQty > 0.5 )
-					blockID = fCursor-1;
+				Vector3 local = customRaycastSystem.lastHit.transform.InverseTransformPoint( customRaycastSystem.lastHit.point );
+				Vector2 hc = new Vector2( 0, 0 );
+				float biggest = 0;
+				if(  local.x > biggest ) { hc = new Vector2( local.z, local.y ); biggest = local.x; }
+				if( -local.x > biggest ) { hc = new Vector2(-local.z, local.y ); biggest =-local.x; }
+				if(  local.y > biggest ) { hc = new Vector2(-local.x,-local.z ); biggest = local.y; }
+				if( -local.y > biggest ) { hc = new Vector2(-local.x, local.z ); biggest =-local.y; }
+				if(  local.z > biggest ) { hc = new Vector2(-local.x, local.y ); biggest = local.z; }
+				if( -local.z > biggest ) { hc = new Vector2(-local.x,-local.y ); biggest =-local.z; }
+				hc += new Vector2( 0.5f, 0.5f );
+				Debug.Log( hc );
+				float fc = ((int)(hc.x*16)) + ((int)(hc.y*16))*16 + 1; 
+				if( hid == 0 )
+					fCursor0 = fc;
+				else
+					fCursor1 = fc;
+				
+				if( triggerQty > 0.5f )
+					blockID = (int)fc - 1;
 				_UpdateID();
-			}*/
+			}
 		}
 	}
 }
@@ -281,7 +304,19 @@ namespace BrokeredUpdates
 				foreach( BrokeredBlockIDer b in bs )
 				{
 					b.UpdateProxy();
-					ct += b.SnapNow()?1:0;
+					ct += b._SnapNow()?1:0;
+
+					//Nudge colliding blocks.
+					foreach( BrokeredBlockIDer be in bs )
+					{
+						if( be != b )
+						{
+							if( Vector3.Distance( be.transform.localPosition, b.transform.localPosition ) < 0.1 )
+							{
+								b._Nudge();
+							}
+						}
+					}
 					b.ApplyProxyModifications();
 					ctb++;
 				}
