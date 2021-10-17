@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 4|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: CustomRaycastSystem, Assembly-CSharp
+      Data: BrokeredUpdates.CustomRaycastSystem, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
