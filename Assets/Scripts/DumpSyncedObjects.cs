@@ -13,7 +13,7 @@ public class DumpSyncedObjects : UdonSharpBehaviour
         
     }
 	
-	void Interact()
+	public override void Interact()
 	{
 		Debug.Log( "DUMPING OBJECTS ================" );
 		Transform [] allChildren = rootOfTreeToDump.GetComponentsInChildren<Transform>();

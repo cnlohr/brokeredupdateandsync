@@ -3,7 +3,7 @@
 	Properties
 	{
 		_TextData ("TextData", 2D) = "white" {}
-		_BackgroundColor( "Background Color", Color ) = ( 0, 0, 0, 0 )
+		_BackgroundColor( "Background Color", Color ) = ( 0, 0, 0, 1 )
 		_ForegroundColor( "Foreground Color", Color ) = ( 1, 1, 1, 1 )
 		_AAAmt( "AA Amount", float ) = 0.4
 	}

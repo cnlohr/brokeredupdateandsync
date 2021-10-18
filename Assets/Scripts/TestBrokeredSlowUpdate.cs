@@ -5,37 +5,41 @@ using VRC.SDKBase;
 using VRC.Udon;
 using BrokeredUpdates;
 
-public class TestBrokeredSlowUpdate : UdonSharpBehaviour
-{
-	private BrokeredUpdates.BrokeredUpdateManager brokeredUpdateManager;
-	private bool bOnList = false;
-	private Material m;
 
-	void Start()
+namespace BrokeredUpdates
+{
+	public class TestBrokeredSlowUpdate : UdonSharpBehaviour
 	{
-		brokeredUpdateManager = GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>();
-	}
-	
-	public void _SlowUpdate()
-	{
-		Vector4 col = GetComponent<MeshRenderer>().material.GetVector( "_Color" );
-		col.x = ( col.x + 0.01f ) % 1;
-		col.y = ( col.y + 0.01f ) % 1;
-		col.z = ( col.z + 0.01f ) % 1;
-		GetComponent<MeshRenderer>().material.SetVector( "_Color", col );
-	}
-	
-	public override void Interact()
-	{
-		if( bOnList )
+		private BrokeredUpdateManager brokeredUpdateManager;
+		private bool bOnList = false;
+		private Material m;
+
+		void Start()
 		{
-			bOnList = false;
-			brokeredUpdateManager._UnregisterSlowUpdate( this );			
+			brokeredUpdateManager = GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>();
 		}
-		else
+		
+		public void _SlowUpdate()
 		{
-			bOnList = true;
-			brokeredUpdateManager._RegisterSlowUpdate( this );
+			Vector4 col = GetComponent<MeshRenderer>().material.GetVector( "_Color" );
+			col.x = ( col.x + 0.01f ) % 1;
+			col.y = ( col.y + 0.01f ) % 1;
+			col.z = ( col.z + 0.01f ) % 1;
+			GetComponent<MeshRenderer>().material.SetVector( "_Color", col );
+		}
+		
+		public override void Interact()
+		{
+			if( bOnList )
+			{
+				bOnList = false;
+				brokeredUpdateManager._UnregisterSlowUpdate( this );			
+			}
+			else
+			{
+				bOnList = true;
+				brokeredUpdateManager._RegisterSlowUpdate( this );
+			}
 		}
 	}
 }
