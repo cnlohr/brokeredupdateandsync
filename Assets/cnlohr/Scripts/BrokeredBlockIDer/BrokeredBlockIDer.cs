@@ -182,13 +182,15 @@ namespace BrokeredUpdates
 				Vector3 local = customRaycastSystem.lastHit.transform.InverseTransformPoint( customRaycastSystem.lastHit.point );
 				Vector2 hc = new Vector2( 0, 0 );
 				float biggest = 0;
-				if(  local.x > biggest ) { hc = new Vector2( local.z, local.y ); biggest = local.x; }
-				if( -local.x > biggest ) { hc = new Vector2(-local.z, local.y ); biggest =-local.x; }
-				if(  local.y > biggest ) { hc = new Vector2(-local.x,-local.z ); biggest = local.y; }
-				if( -local.y > biggest ) { hc = new Vector2(-local.x, local.z ); biggest =-local.y; }
-				if(  local.z > biggest ) { hc = new Vector2(-local.x, local.y ); biggest = local.z; }
-				if( -local.z > biggest ) { hc = new Vector2(-local.x,-local.y ); biggest =-local.z; }
+				int face = 0;
+				if(  local.x > biggest ) { hc = new Vector2(-local.y, local.z ); biggest = local.x; face = 0; }
+				if( -local.x > biggest ) { hc = new Vector2(-local.z, local.y ); biggest =-local.x; face = 1; }
+				if(  local.y > biggest ) { hc = new Vector2( local.x, local.z ); biggest = local.y; face = 2; }
+				if( -local.y > biggest ) { hc = new Vector2(-local.z,-local.x ); biggest =-local.y; face = 3; }
+				if(  local.z > biggest ) { hc = new Vector2( local.x,-local.y ); biggest = local.z; face = 4; }
+				if( -local.z > biggest ) { hc = new Vector2(-local.x,-local.y ); biggest =-local.z; face = 5; }
 				hc += new Vector2( 0.5f, 0.5f );
+				Debug.Log( face );
 				Debug.Log( hc );
 				float fc = ((int)(hc.x*16)) + ((int)(hc.y*16))*16 + 1; 
 				if( hid == 0 )
@@ -335,7 +337,7 @@ namespace BrokeredUpdates
 					b._UpdateID();
 					b.ApplyProxyModifications();
 				}
-				Debug.Log( $"Gridded {ct}" );
+				Debug.Log( $"Randomized {ct}" );
 			}
 			
 			EditorGUILayout.Space();
