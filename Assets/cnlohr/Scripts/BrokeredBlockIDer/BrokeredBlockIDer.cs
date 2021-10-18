@@ -29,11 +29,14 @@ namespace BrokeredUpdates
 		private float fCursor0 = 0;
 		private float fCursor1 = 0;
 		private int [] useFlags;
+		private bool [] wasTriggered;
+		private BrokeredSync bs;
 
 		void Start()
 		{
 			thisRigidBody = GetComponent<Rigidbody>();
 			useFlags = new int[2];
+			wasTriggered = new bool[2];
 
 			instanceID = brokeredUpdateManager._GetIncrementingID();
 			if( Networking.IsMaster )
@@ -45,6 +48,7 @@ namespace BrokeredUpdates
 #if UNITY_EDITOR
 			blockID = defaultBlockID;
 #endif
+			bs = (BrokeredSync)gameObject.GetComponent<BrokeredSync>();
 			_UpdateID();
 		}
 		
@@ -65,8 +69,10 @@ namespace BrokeredUpdates
 		{
 			MaterialPropertyBlock block = new MaterialPropertyBlock();
 			MeshRenderer mr = GetComponent<MeshRenderer>();
-			//mr.GetPropertyBlock(block);
-			block.SetVector( "_InstanceID", new Vector4( instanceID, blockID, fCursor0, fCursor1 ) );
+			int kineadd = 0;
+			if( Utilities.IsValid( bs ) )
+				kineadd = (bs.bKinematicOnRelease?1024:0) + (bs.bUseGravityOnRelease?2048:0);
+			block.SetVector( "_InstanceID", new Vector4( instanceID, blockID + kineadd, fCursor0, fCursor1 ) );
 			mr.SetPropertyBlock(block);
 		}
 
@@ -173,12 +179,14 @@ namespace BrokeredUpdates
 		public void RaycastIntersectedMotion()
 		{
 			int hid = customRaycastSystem.currentHandID;
-			//if( hid == 0 )
-			{
-				float triggerQty = 
-					Mathf.Max(Input.GetAxisRaw((hid==0)?"Oculus_CrossPlatform_PrimaryIndexTrigger":"Oculus_CrossPlatform_SecondaryIndexTrigger"),
-					Input.GetMouseButton(1) ? 1 : 0);
+			float triggerQty = 
+				Mathf.Max(Input.GetAxisRaw((hid==0)?"Oculus_CrossPlatform_PrimaryIndexTrigger":"Oculus_CrossPlatform_SecondaryIndexTrigger"),
+				Input.GetMouseButton(1) ? 1 : 0);
+				
+			bool bTrig = (triggerQty > 0.5f);
 
+			if( Networking.GetOwner( gameObject ) == Networking.LocalPlayer )
+			{
 				Vector3 local = customRaycastSystem.lastHit.transform.InverseTransformPoint( customRaycastSystem.lastHit.point );
 				Vector2 hc = new Vector2( 0, 0 );
 				float biggest = 0;
@@ -190,17 +198,48 @@ namespace BrokeredUpdates
 				if(  local.z > biggest ) { hc = new Vector2( local.x,-local.y ); biggest = local.z; face = 4; }
 				if( -local.z > biggest ) { hc = new Vector2(-local.x,-local.y ); biggest =-local.z; face = 5; }
 				hc += new Vector2( 0.5f, 0.5f );
-				Debug.Log( face );
-				Debug.Log( hc );
+				//Debug.Log( face );
+				//Debug.Log( hc );
 				float fc = ((int)(hc.x*16)) + ((int)(hc.y*16))*16 + 1; 
 				if( hid == 0 )
 					fCursor0 = fc;
 				else
 					fCursor1 = fc;
 				
-				if( triggerQty > 0.5f )
-					blockID = (int)fc - 1;
+				if( bTrig && !wasTriggered[hid] )
+				{
+					Debug.Log( $"Command Press {fc}" );
+					if( fc < 171 )
+					{
+						blockID = (int)fc - 1;
+					}
+					else
+					{
+						if( fc == 254 )
+						{
+							//Not sure why doing this doesn't change immediately.
+							bs.bKinematicOnRelease = !bs.bKinematicOnRelease;
+							GetComponent<Rigidbody>().isKinematic = bs.bKinematicOnRelease;
+							GetComponent<Rigidbody>().WakeUp();
+						}
+						if( fc == 255 )
+						{
+							//Not sure why doing this doesn't change immediately.
+							bs.bUseGravityOnRelease = !bs.bUseGravityOnRelease;
+							GetComponent<Rigidbody>().useGravity = bs.bUseGravityOnRelease ;
+							GetComponent<Rigidbody>().WakeUp();
+						}
+					}
+				}
+				bs.OnPickup();
+				bs.OnDrop();
+				wasTriggered[hid] = bTrig;
 				_UpdateID();
+			}
+			else
+			{
+				if( bTrig )
+					Networking.SetOwner( Networking.LocalPlayer, gameObject );
 			}
 		}
 	}

@@ -97,14 +97,13 @@ public class DemoMapScript : UdonSharpBehaviour
 
 	public override void OnPlayerRespawn ( VRCPlayerApi p )
 	{
-		Debug.Log( "ABOUT TO TEST RESPAWN" );
 		if( Utilities.IsValid( p ) )
 		{
-			if( p.displayName == "cnlohr" )
+			if( p.displayName == "half＆half_madam" )
 			{
 				s1.UseStation( p );
 			}
-			if( p.displayName == "Yewnix" )
+			if( p.displayName == "Yewnyx" )
 			{
 				s2.UseStation( p );
 			}
