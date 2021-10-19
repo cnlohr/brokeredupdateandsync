@@ -108,8 +108,6 @@
 				uint bvy = (uint)UNITY_ACCESS_INSTANCED_PROP(Props, _InstanceID).y;
 				uint blockID = bvy%256;
 				
-				bool bKineOn = !!(bvy&1024);
-				bool bGravOn = !!(bvy&2048);
 
 				int localblockid = floor( IN.uv_MineTex.x * 16 ) + floor( IN.uv_MineTex.y * 16 ) * 16;
 				float2 localuv = frac( IN.uv_MineTex * 16 );
@@ -118,10 +116,13 @@
 
 				c = tex2Dlod(_MineTex, float4( newuv, 0, 0 ));
 
-				if( localblockid >= 253 )
+				if( localblockid >= 251 )
 				{
-					if( localblockid == 253 ) c *= bKineOn?0.8:0.1;
-					if( localblockid == 254 ) c *= bGravOn?0.8:0.1;
+					int motionmode = (bvy>>8)&0x0f;
+					if( localblockid == 251 ) c *= (motionmode==4)?0.8:0.1;
+					if( localblockid == 252 ) c *= (motionmode==1)?0.8:0.1;
+					if( localblockid == 253 ) c *= (motionmode==2)?0.8:0.1;
+					if( localblockid == 254 ) c *= (motionmode==3)?0.8:0.1;
 				}
 
 				if( localblockid == cursor0 || localblockid == cursor1 )

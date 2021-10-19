@@ -392,6 +392,7 @@ namespace UdonSharp
 
 		public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
 		{
+			Resources.LoadAll("");
 			if (requestedBuildType == VRCSDKRequestedBuildType.Avatar) return true;
 			BrokeredUpdates.BrokeredSync [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdates.BrokeredSync ) ) as BrokeredUpdates.BrokeredSync[];
 			foreach( BrokeredUpdates.BrokeredSync b in bs )
@@ -421,6 +422,7 @@ namespace BrokeredUpdates
 			int ct = 0;
 			if (GUILayout.Button(new GUIContent("Attach brokeredUpdateManager to all Brokered Sync objects.", "Automatically finds all Brokered Sync objects and attaches the manager.")))
 			{
+				Resources.LoadAll("");
 				BrokeredSync [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredSync ) ) as BrokeredSync[];
 				BrokeredUpdateManager [] managers = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdateManager ) ) as BrokeredUpdateManager[];
 				if( managers.Length < 1 )

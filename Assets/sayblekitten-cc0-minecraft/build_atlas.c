@@ -99,10 +99,10 @@ int main()
 	mz_zip_reader_end(&zip_archive);
 	
 	int w, h, n;
-	uint32_t * pixels = (uint32_t*)stbi_load( "KinematicIcon.png", &w, &h, &n, 4);
+	uint32_t * pixels = (uint32_t*)stbi_load( "SnapIcon.png", &w, &h, &n, 4);
 	if( n != 4 )
 	{
-		fprintf( stderr, "Error: Can't parse KinematicIcon.pngsa.\n" );
+		fprintf( stderr, "Error: Can't parse SnapIcon.png.\n" );
 		return EXIT_FAILURE;
 	}
 	int x, y;
@@ -112,16 +112,43 @@ int main()
 			framebuffer[(15*16)+y][(13*16)+x] = pixels[y*w+x];
 		}
 	free( pixels );
+
 	pixels = (uint32_t*)stbi_load( "GravityIcon.png", &w, &h, &n, 4);
 	if( n != 4 )
 	{
-		fprintf( stderr, "Error: Can't parse KinematicIcon.png.\n" );
+		fprintf( stderr, "Error: Can't parse GravityIcon.png.\n" );
 		return EXIT_FAILURE;
 	}
 	for( y = 0; y < h; y++ )
 		for( x = 0; x < w; x++ )
 		{
 			framebuffer[(15*16)+y][(14*16)+x] = pixels[y*w+x];
+		}
+	free( pixels ); 
+
+	pixels = (uint32_t*)stbi_load( "MotionIcon.png", &w, &h, &n, 4);
+	if( n != 4 )
+	{
+		fprintf( stderr, "Error: Can't parse MotionIcon.png.\n" );
+		return EXIT_FAILURE;
+	}
+	for( y = 0; y < h; y++ )
+		for( x = 0; x < w; x++ )
+		{
+			framebuffer[(15*16)+y][(12*16)+x] = pixels[y*w+x];
+		}
+	free( pixels ); 
+
+	pixels = (uint32_t*)stbi_load( "SimpleIcon.png", &w, &h, &n, 4);
+	if( n != 4 )
+	{
+		fprintf( stderr, "Error: Can't parse SimpleIcon.png.\n" );
+		return EXIT_FAILURE;
+	}
+	for( y = 0; y < h; y++ )
+		for( x = 0; x < w; x++ )
+		{
+			framebuffer[(15*16)+y][(11*16)+x] = pixels[y*w+x];
 		}
 	free( pixels ); 
 

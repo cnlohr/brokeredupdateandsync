@@ -33,8 +33,8 @@ public class SaccFlight : UdonSharpBehaviour
     {
         if (EnableFlight && !localPlayer.IsPlayerGrounded())//only does anything if in the air.
         {
-            float ForwardThrust = Mathf.Max(Input.GetAxisRaw("Oculus_CrossPlatform_SecondaryIndexTrigger"), Input.GetKey(KeyCode.F) ? 1 : 0);
-            float UpThrust = Mathf.Max(Input.GetAxisRaw("Oculus_CrossPlatform_PrimaryIndexTrigger"), Input.GetKey(KeyCode.Space) ? 1 : 0);
+            float ForwardThrust = Mathf.Max(Input.GetAxisRaw("Oculus_CrossPlatform_SecondaryIndexTrigger"), Input.GetKey(KeyCode.F) ? 1.4f : 0);
+            float UpThrust = Mathf.Max(Input.GetAxisRaw("Oculus_CrossPlatform_PrimaryIndexTrigger"), Input.GetKey(KeyCode.Space) ? 1.4f : 0);
 
             Vector3 PlayerVel = localPlayer.GetVelocity();
 
