@@ -99,7 +99,46 @@ int main()
 	mz_zip_reader_end(&zip_archive);
 	
 	int w, h, n;
-	uint32_t * pixels = (uint32_t*)stbi_load( "SnapIcon.png", &w, &h, &n, 4);
+	uint32_t * pixels;
+	
+	int eb = 0;
+	do
+	{
+		//Advance block pointer.
+		blockx = blockx+w;
+		if( blockx >= WIDTH )
+		{
+			blockx = 0;
+			blocky+=h;
+			if( blocky >= HEIGHT )
+			{
+				fprintf( stderr, "Warning: image full.\n" );
+				break;
+			}
+		}
+		char fnn[1024];
+		sprintf( fnn, "ExtraBlocks/%d.png", eb );
+		printf( "Opening %s\n", fnn );
+		pixels = (uint32_t*)stbi_load( fnn, &w, &h, &n, 4);
+		if( !pixels ) break;
+		if( n != 4 )
+		{
+			fprintf( stderr, "Error: Can't parse SnapIcon.png.\n" );
+			return EXIT_FAILURE;
+		}
+		int x, y;
+		for( y = 0; y < h; y++ )
+			for( x = 0; x < w; x++ )
+			{
+				framebuffer[blocky+y][blockx+x] = pixels[y*w+x];
+			}
+		free( pixels );
+
+		eb++;
+	} while( 1 );
+
+
+	pixels = (uint32_t*)stbi_load( "SnapIcon.png", &w, &h, &n, 4);
 	if( n != 4 )
 	{
 		fprintf( stderr, "Error: Can't parse SnapIcon.png.\n" );

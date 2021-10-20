@@ -42,7 +42,9 @@ namespace BrokeredUpdates
 			instanceID = brokeredUpdateManager._GetIncrementingID();
 			if( Networking.IsMaster )
 				blockID = defaultBlockID + (_GetMotionMode()<<8);
-
+			else
+				blockID = defaultBlockID + (_GetMotionMode()<<8); //XXX TEST ME.
+			
 			fCursor0 = 0;
 			fCursor1 = 0;
 
@@ -279,7 +281,7 @@ namespace BrokeredUpdates
 				if( bTrig && !wasTriggered[hid] )
 				{
 					Debug.Log( $"Command Press {fc}" );
-					if( fc < 171 )
+					if( fc < 240 )
 					{
 						blockID = ((int)fc - 1) | ( blockID & 0x0fffff00);
 					}
@@ -447,7 +449,7 @@ namespace BrokeredUpdates
 				foreach( BrokeredBlockIDer b in bs )
 				{
 					b.UpdateProxy();
-					b.defaultBlockID = (int)Random.Range( 0, 171.99f );
+					b.defaultBlockID = (int)Random.Range( 0, 181.99f );
 					ct++;
 					b._SetBlockID( b.defaultBlockID );
 					b._UpdateID();

@@ -6,7 +6,7 @@
         _MineTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
-		_OverrideBlockID ("Override Block ID", Range(-1,171) ) = -1
+		_OverrideBlockID ("Override Block ID", Range(-1,240) ) = -1
     }
     SubShader
     {

@@ -62,7 +62,7 @@ namespace BrokeredUpdates
 
 		void Start()
 		{
-//			brokeredUpdateManager._RegisterSlowObjectSyncUpdate( this );
+			brokeredUpdateManager._RegisterSlowObjectSyncUpdate( this );
 			brokeredUpdateManager._RegisterSnailUpdate( this );
 
 			thisRigidBody = GetComponent<Rigidbody>();
@@ -134,7 +134,7 @@ namespace BrokeredUpdates
 				}
 			}
 		}
-/*		
+		
 		public void _SnailUpdate()
 		{
 			_CheckReset();
@@ -149,7 +149,7 @@ namespace BrokeredUpdates
 				}
 			}
 		}
-*/
+
 		public void _SlowObjectSyncUpdate()
 		{
 			// In Udon, when loading, sometimes later joining clients miss OnDeserialization().
