@@ -60,7 +60,7 @@ int main()
 		
 		
 		int w, h, channels;
-		uint32_t * pixels = stbi_load_from_memory( p, uncomp_size, &w, &h, &channels, 4 );
+		uint32_t * pixels = (uint32_t*)stbi_load_from_memory( p, uncomp_size, &w, &h, &channels, 4 );
 		if( !pixels )
 		{
 			fprintf( stderr, "Error: Failed to decode %s\n", fn );
@@ -97,6 +97,100 @@ int main()
 		mz_free(p);
 	}
 	mz_zip_reader_end(&zip_archive);
+	
+	int w, h, n;
+	uint32_t * pixels;
+	
+	int eb = 0;
+	do
+	{
+		//Advance block pointer.
+		blockx = blockx+w;
+		if( blockx >= WIDTH )
+		{
+			blockx = 0;
+			blocky+=h;
+			if( blocky >= HEIGHT )
+			{
+				fprintf( stderr, "Warning: image full.\n" );
+				break;
+			}
+		}
+		char fnn[1024];
+		sprintf( fnn, "ExtraBlocks/%d.png", eb );
+		printf( "Opening %s\n", fnn );
+		pixels = (uint32_t*)stbi_load( fnn, &w, &h, &n, 4);
+		if( !pixels ) break;
+		if( n != 4 )
+		{
+			fprintf( stderr, "Error: Can't parse SnapIcon.png.\n" );
+			return EXIT_FAILURE;
+		}
+		int x, y;
+		for( y = 0; y < h; y++ )
+			for( x = 0; x < w; x++ )
+			{
+				framebuffer[blocky+y][blockx+x] = pixels[y*w+x];
+			}
+		free( pixels );
+
+		eb++;
+	} while( 1 );
+
+
+	pixels = (uint32_t*)stbi_load( "SnapIcon.png", &w, &h, &n, 4);
+	if( n != 4 )
+	{
+		fprintf( stderr, "Error: Can't parse SnapIcon.png.\n" );
+		return EXIT_FAILURE;
+	}
+	int x, y;
+	for( y = 0; y < h; y++ )
+		for( x = 0; x < w; x++ )
+		{
+			framebuffer[(15*16)+y][(13*16)+x] = pixels[y*w+x];
+		}
+	free( pixels );
+
+	pixels = (uint32_t*)stbi_load( "GravityIcon.png", &w, &h, &n, 4);
+	if( n != 4 )
+	{
+		fprintf( stderr, "Error: Can't parse GravityIcon.png.\n" );
+		return EXIT_FAILURE;
+	}
+	for( y = 0; y < h; y++ )
+		for( x = 0; x < w; x++ )
+		{
+			framebuffer[(15*16)+y][(14*16)+x] = pixels[y*w+x];
+		}
+	free( pixels ); 
+
+	pixels = (uint32_t*)stbi_load( "MotionIcon.png", &w, &h, &n, 4);
+	if( n != 4 )
+	{
+		fprintf( stderr, "Error: Can't parse MotionIcon.png.\n" );
+		return EXIT_FAILURE;
+	}
+	for( y = 0; y < h; y++ )
+		for( x = 0; x < w; x++ )
+		{
+			framebuffer[(15*16)+y][(12*16)+x] = pixels[y*w+x];
+		}
+	free( pixels ); 
+
+	pixels = (uint32_t*)stbi_load( "SimpleIcon.png", &w, &h, &n, 4);
+	if( n != 4 )
+	{
+		fprintf( stderr, "Error: Can't parse SimpleIcon.png.\n" );
+		return EXIT_FAILURE;
+	}
+	for( y = 0; y < h; y++ )
+		for( x = 0; x < w; x++ )
+		{
+			framebuffer[(15*16)+y][(11*16)+x] = pixels[y*w+x];
+		}
+	free( pixels ); 
+
 
 	int ret = stbi_write_png( "block_atlas.png", WIDTH, HEIGHT, 4, framebuffer, 4*WIDTH );
 	printf( "stbi_write_png = %d\n", ret );

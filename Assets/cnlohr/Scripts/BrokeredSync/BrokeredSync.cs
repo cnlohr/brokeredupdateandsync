@@ -46,8 +46,10 @@ namespace BrokeredUpdates
 		private bool firstUpdateSlave;
 		private float fDeltaMasterSendUpdateTime;
 		
-		private bool bUseGravityOnRelease;
-		private bool bKinematicOnRelease;
+		[HideInInspector]
+		public bool bUseGravityOnRelease;
+		[HideInInspector]
+		public bool bKinematicOnRelease;
 		
 		private Vector3			   resetPosition;
 		private Quaternion			resetQuaternion;
@@ -65,6 +67,11 @@ namespace BrokeredUpdates
 
 			thisRigidBody = GetComponent<Rigidbody>();
 			thisCollider = GetComponent<Collider>();
+
+			//Tricky: There's a bug with Unity that can cause us to not know the
+			//rigid body is valid.  This prevents us from losing it.
+			bUseGravityOnRelease = thisRigidBody.useGravity;
+			bKinematicOnRelease =  thisRigidBody.isKinematic;
 
 			resetPosition = transform.localPosition;
 			resetQuaternion = transform.localRotation;
@@ -286,8 +293,11 @@ namespace BrokeredUpdates
 					// If we start being moved by the master, then disable gravity.
 					if( Utilities.IsValid( thisRigidBody ) )
 					{
-						bUseGravityOnRelease = thisRigidBody.useGravity;
-						bKinematicOnRelease =  thisRigidBody.isKinematic;
+						//XXX XXX TODO This is temporarily commented out because sometimes this breaks.
+						//KNOWN ISSUE: But it appears like it's with VRC.  So, we compromise.  We can't
+						//change the gravity or kinematic after we start, without changing this.
+						//bUseGravityOnRelease = thisRigidBody.useGravity;
+						//bKinematicOnRelease =  thisRigidBody.isKinematic;
 						thisRigidBody.useGravity = false;
 						thisRigidBody.isKinematic = true;
 					}
@@ -382,6 +392,7 @@ namespace UdonSharp
 
 		public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
 		{
+			Resources.LoadAll("");
 			if (requestedBuildType == VRCSDKRequestedBuildType.Avatar) return true;
 			BrokeredUpdates.BrokeredSync [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdates.BrokeredSync ) ) as BrokeredUpdates.BrokeredSync[];
 			foreach( BrokeredUpdates.BrokeredSync b in bs )
@@ -411,6 +422,7 @@ namespace BrokeredUpdates
 			int ct = 0;
 			if (GUILayout.Button(new GUIContent("Attach brokeredUpdateManager to all Brokered Sync objects.", "Automatically finds all Brokered Sync objects and attaches the manager.")))
 			{
+				Resources.LoadAll("");
 				BrokeredSync [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredSync ) ) as BrokeredSync[];
 				BrokeredUpdateManager [] managers = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdateManager ) ) as BrokeredUpdateManager[];
 				if( managers.Length < 1 )

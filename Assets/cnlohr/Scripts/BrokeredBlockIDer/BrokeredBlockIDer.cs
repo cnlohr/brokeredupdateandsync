@@ -29,28 +29,35 @@ namespace BrokeredUpdates
 		private float fCursor0 = 0;
 		private float fCursor1 = 0;
 		private int [] useFlags;
+		private bool [] wasTriggered;
+		public bool allowSnap = true;
+		private BrokeredSync bs;
 
 		void Start()
 		{
 			thisRigidBody = GetComponent<Rigidbody>();
 			useFlags = new int[2];
+			wasTriggered = new bool[2];
 
 			instanceID = brokeredUpdateManager._GetIncrementingID();
 			if( Networking.IsMaster )
-				blockID = defaultBlockID;
-
+				blockID = defaultBlockID + (_GetMotionMode()<<8);
+			else
+				blockID = defaultBlockID + (_GetMotionMode()<<8); //XXX TEST ME.
+			
 			fCursor0 = 0;
 			fCursor1 = 0;
 
 #if UNITY_EDITOR
-			blockID = defaultBlockID;
+			blockID = defaultBlockID + (_GetMotionMode()<<8);
 #endif
+			bs = (BrokeredSync)gameObject.GetComponent<BrokeredSync>();
 			_UpdateID();
 		}
 		
 		public void _SetBlockID( int bid )
 		{
-			blockID = bid;
+			blockID = bid + (blockID & 0xffff00);
 		}
 		
 		override public void OnPickup ()
@@ -61,17 +68,87 @@ namespace BrokeredUpdates
 			Networking.SetOwner( Networking.LocalPlayer, gameObject );
 		}
 		
+		public int _GetMotionMode()
+		{
+			Rigidbody rb = GetComponent<Rigidbody>();
+			if( allowSnap )
+			{
+				return 2;
+			}
+			else if( Utilities.IsValid( rb ) && rb.useGravity )
+			{
+				return 3;
+			}
+			else if( Utilities.IsValid( rb ) && rb.isKinematic )
+			{
+				return 4;
+			}
+			else
+			{
+				// Motion, no gravity.
+				return 1;
+			}
+		}
+		
 		public void _UpdateID()
 		{
 			MaterialPropertyBlock block = new MaterialPropertyBlock();
 			MeshRenderer mr = GetComponent<MeshRenderer>();
-			//mr.GetPropertyBlock(block);
 			block.SetVector( "_InstanceID", new Vector4( instanceID, blockID, fCursor0, fCursor1 ) );
 			mr.SetPropertyBlock(block);
 		}
 
+		public void _SetModeInternal( int mode )
+		{
+			bool upd = false;
+			if( mode == 0 ) return;
+			if( mode == 4 )
+			{
+				//4 = No motion.
+				if( bs.bKinematicOnRelease != true || bs.bUseGravityOnRelease != false || allowSnap != false ) upd = true;
+				bs.bKinematicOnRelease = true;
+				bs.bUseGravityOnRelease = false;
+				allowSnap = false;
+			}
+			if( mode == 1 )
+			{
+				//1 = Free Floating
+				if( bs.bKinematicOnRelease != false || bs.bUseGravityOnRelease != false || allowSnap != false ) upd = true;
+				bs.bKinematicOnRelease = false;
+				bs.bUseGravityOnRelease = false;
+				allowSnap = false;
+			}
+			if( mode == 2 )
+			{
+				//2 = Snapped
+				if( bs.bKinematicOnRelease != true || bs.bUseGravityOnRelease != false || allowSnap != true ) upd = true;
+				allowSnap = true;
+				bs.bKinematicOnRelease = true;
+				bs.bUseGravityOnRelease = false;
+			}
+			if( mode == 3 )
+			{
+				//3 = Gravity
+				if( bs.bKinematicOnRelease != false || bs.bUseGravityOnRelease != true || allowSnap != false ) upd = true;
+				allowSnap = false;
+				bs.bKinematicOnRelease = false;
+				bs.bUseGravityOnRelease = true;
+			}
+			
+			if( upd )
+			{
+				GetComponent<Rigidbody>().useGravity = bs.bUseGravityOnRelease ;
+				GetComponent<Rigidbody>().isKinematic = bs.bKinematicOnRelease;
+				GetComponent<Rigidbody>().WakeUp();
+			}
+			
+			
+			blockID = (blockID & 0xffff0ff) | (mode<<8);
+		}
+
 		public override void OnDeserialization()
 		{
+			_SetModeInternal( ( blockID & 0xf00 ) >> 8 );
 			_UpdateID();
 		}
 
@@ -118,7 +195,7 @@ namespace BrokeredUpdates
 		
 		public bool _SnapNow()
 		{
-			bool dosnap = true;
+			bool dosnap = allowSnap;
 			if( Utilities.IsValid( GetComponent<Rigidbody>() ) )
 				if( !GetComponent<Rigidbody>().isKinematic )
 					dosnap = false;
@@ -172,13 +249,16 @@ namespace BrokeredUpdates
 		
 		public void RaycastIntersectedMotion()
 		{
+			if( customRaycastSystem.lastHit.distance > 1.8 ) return;
 			int hid = customRaycastSystem.currentHandID;
-			//if( hid == 0 )
-			{
-				float triggerQty = 
-					Mathf.Max(Input.GetAxisRaw((hid==0)?"Oculus_CrossPlatform_PrimaryIndexTrigger":"Oculus_CrossPlatform_SecondaryIndexTrigger"),
-					Input.GetMouseButton(1) ? 1 : 0);
+			float triggerQty = 
+				Mathf.Max(Input.GetAxisRaw((hid==0)?"Oculus_CrossPlatform_PrimaryIndexTrigger":"Oculus_CrossPlatform_SecondaryIndexTrigger"),
+				Input.GetMouseButton(1) ? 1 : 0);
+				
+			bool bTrig = (triggerQty > 0.5f);
 
+			if( Networking.GetOwner( gameObject ) == Networking.LocalPlayer )
+			{
 				Vector3 local = customRaycastSystem.lastHit.transform.InverseTransformPoint( customRaycastSystem.lastHit.point );
 				Vector2 hc = new Vector2( 0, 0 );
 				float biggest = 0;
@@ -190,18 +270,53 @@ namespace BrokeredUpdates
 				if(  local.z > biggest ) { hc = new Vector2( local.x,-local.y ); biggest = local.z; face = 4; }
 				if( -local.z > biggest ) { hc = new Vector2(-local.x,-local.y ); biggest =-local.z; face = 5; }
 				hc += new Vector2( 0.5f, 0.5f );
-				Debug.Log( face );
-				Debug.Log( hc );
+				//Debug.Log( face );
+				//Debug.Log( hc );
 				float fc = ((int)(hc.x*16)) + ((int)(hc.y*16))*16 + 1; 
 				if( hid == 0 )
 					fCursor0 = fc;
 				else
 					fCursor1 = fc;
 				
-				if( triggerQty > 0.5f )
-					blockID = (int)fc - 1;
+				if( bTrig && !wasTriggered[hid] )
+				{
+					Debug.Log( $"Command Press {fc}" );
+					if( fc < 240 )
+					{
+						blockID = ((int)fc - 1) | ( blockID & 0x0fffff00);
+					}
+					else
+					{
+						if( fc == 252 )
+						{
+							_SetModeInternal( 4 );
+						}
+						if( fc == 253 )
+						{
+							_SetModeInternal( 1 );
+						}
+						if( fc == 254 )
+						{
+							_SetModeInternal( 2 );
+						}
+						if( fc == 255 )
+						{
+							_SetModeInternal( 3 );
+						}
+					}
+					RequestSerialization();
+					_SnapNow();
+					bs.OnPickup();
+					bs.OnDrop();
+				}
 				_UpdateID();
 			}
+			else
+			{
+				if( bTrig )
+					Networking.SetOwner( Networking.LocalPlayer, gameObject );
+			}
+			wasTriggered[hid] = bTrig;
 		}
 	}
 }
@@ -251,6 +366,7 @@ namespace BrokeredUpdates
 			EditorGUILayout.Space();
 			if (GUILayout.Button(new GUIContent("Attach brokeredUpdateManager to all Brokered Sync objects.", "Automatically finds all Brokered Sync objects and attaches the manager.")))
 			{
+				Resources.LoadAll("");
 				int ct = 0;
 				BrokeredBlockIDer [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredBlockIDer ) ) as BrokeredBlockIDer[];
 				BrokeredUpdateManager [] managers = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdateManager ) ) as BrokeredUpdateManager[];
@@ -300,6 +416,7 @@ namespace BrokeredUpdates
 			}
 			if (GUILayout.Button(new GUIContent("Gridify all.", "Snap all objects to grid now.")))
 			{
+				Resources.LoadAll("");
 				BrokeredBlockIDer [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredBlockIDer ) ) as BrokeredBlockIDer[];
 				int ct = 0;
 				int ctb = 0;
@@ -326,12 +443,13 @@ namespace BrokeredUpdates
 			}
 			if (GUILayout.Button(new GUIContent("Randomize IDs.", "Random IDs.")))
 			{
+				Resources.LoadAll("");
 				BrokeredBlockIDer [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredBlockIDer ) ) as BrokeredBlockIDer[];
 				int ct = 0;
 				foreach( BrokeredBlockIDer b in bs )
 				{
 					b.UpdateProxy();
-					b.defaultBlockID = (int)Random.Range( 0, 171.99f );
+					b.defaultBlockID = (int)Random.Range( 0, 181.99f );
 					ct++;
 					b._SetBlockID( b.defaultBlockID );
 					b._UpdateID();
