@@ -57,12 +57,14 @@
 				else
 					blockID = ((uint)(UNITY_ACCESS_INSTANCED_PROP(Props, _InstanceID).y))%256;
 
-				float2 uv = frac( IN.uv_MineTex );
+				float2 uv = IN.uv_MineTex;
                 float2 coord = uv * 16.;
                 float2 fr = frac(coord + 0.5);
                 float2 fw = max(abs(ddx(coord)), abs(ddy(coord)));
                 coord += (saturate((fr-(1-fw)*0.5)/fw) - fr);// * (16.);
 				coord *= 1./16.;
+				if( _OverrideBlockID >= 0 )
+					coord = frac( coord );
 				c = UNITY_SAMPLE_TEX2DARRAY( _MineTex, float4( coord, blockID, 0 ) );
 
 #if 0
