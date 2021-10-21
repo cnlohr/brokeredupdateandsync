@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Mineblock_Floor
-  m_Shader: {fileID: 4800000, guid: 712d480a2d44e0e42bc147c1fa4ecee6, type: 3}
+  m_Shader: {fileID: 4800000, guid: 0d023a5cbcb5fab48ae7804eb77a7f19, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
@@ -48,7 +48,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MineTex:
-        m_Texture: {fileID: 2800000, guid: f2117f2ce578eb74e9f550a788ded444, type: 3}
+        m_Texture: {fileID: 18700000, guid: ef67f69d2d64ca44dbb7a48618a9b1ba, type: 2}
         m_Scale: {x: 30, y: 30}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -70,7 +70,7 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _OverrideBlockID: 25.1
+    - _OverrideBlockID: 25
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

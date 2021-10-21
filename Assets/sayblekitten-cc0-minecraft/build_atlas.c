@@ -203,10 +203,13 @@ int main()
 	for( y = 0; y < 16; y++ )
 	for( x = 0; x < 16; x++ )
 	{
-		framebuffer_out[i][x+y*16] = framebuffer[(i%16)*16+x][(i/16)*16+y];
+		framebuffer_out[i][x+y*16] = framebuffer[(i/16)*16+y][(i%16)*16+x];
 	}
 
-	WriteUnityImageAsset( "block_atlas_array.asset", framebuffer_out, sizeof(framebuffer_out), 16, 16, 256, UTE_RGBA32 | UTE_FLAG_TEXTUREARRAY );
+	WriteUnityImageAsset( "block_atlas_array.asset", framebuffer_out, sizeof(framebuffer_out), 16, 16, 256, 
+		UTE_FLAG_COLOR_SPACE_1 | UTE_RGBA32 | UTE_FLAG_TEXTUREARRAY |
+		UTE_FLAG_FILTER_MODE_LINEAR |
+		UTE_FLAG_FILTER_MODE_CLAMP_V | UTE_FLAG_FILTER_MODE_CLAMP_U);
 
 	return 0;
 }

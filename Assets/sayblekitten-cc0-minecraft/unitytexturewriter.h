@@ -92,8 +92,8 @@ int main()
 #define UTE_FLAG_FILTER_MODE_CLAMP_W     0x4000
 
 #define UTE_FLAG_IS_3D                   0x10000
-
 #define UTE_FLAG_TEXTUREARRAY			 0x20000
+#define UTE_FLAG_COLOR_SPACE_1           0x40000
 
 static inline void WriteUnityImageAsset( const char * filename, void * data, int bytes, int width, int height, int depth, uint32_t flags )
 {
@@ -101,19 +101,19 @@ static inline void WriteUnityImageAsset( const char * filename, void * data, int
 	fprintf( f, "%%YAML 1.1\n\
 %%TAG !u! tag:unity3d.com,2011:\n\
 --- %s\n\
-Texture%dD:\n\
+Texture%dD%s:\n\
   m_ObjectHideFlags: 0\n\
   m_CorrespondingSourceObject: {fileID: 0}\n\
   serializedVersion: 2\n\
   m_Width: %d\n\
   m_Height: %d\n\
   m_Depth: %d\n\
-  m_CompleteImageSize: %d\n\
+  %s: %d\n\
   %s: %d\n\
   m_MipCount: 1\n\
   m_IsReadable: 1\n\
   m_AlphaIsTransparency: %d\n\
-  m_ImageCount: %d\n\
+  m_ImageCount: 1\n\
   m_TextureDimension: %d\n\
   m_TextureSettings:\n\
     serializedVersion: 2\n\
@@ -124,20 +124,20 @@ Texture%dD:\n\
     m_WrapV: %d\n\
     m_WrapW: %d\n\
   m_LightmapFormat: 0\n\
-  m_ColorSpace: 0\n\
+  m_ColorSpace: %d\n\
   image data: %d\n\
   _typelessdata: ",
-	(flags&UTE_FLAG_IS_3D)?"!u!117 &11700000":"!u!28 &2800000",
-	(flags&UTE_FLAG_IS_3D)?3:2, width, height, (flags&UTE_FLAG_IS_3D)?depth:1, bytes,
-	(flags&UTE_FLAG_IS_3D)?"m_Format":"m_TextureFormat",
+	(flags&UTE_FLAG_TEXTUREARRAY)?"!u!187 &18700000":((flags&UTE_FLAG_IS_3D)?"!u!117 &11700000":"!u!28 &2800000"),
+	(flags&UTE_FLAG_IS_3D)?3:2, (flags&UTE_FLAG_TEXTUREARRAY)?"Array":"", width, height, depth, (flags&UTE_FLAG_TEXTUREARRAY)?"m_DataSize":"m_CompleteImageSize", bytes,
+	(flags&(UTE_FLAG_IS_3D|UTE_FLAG_TEXTUREARRAY))?"m_Format":"m_TextureFormat",
 	flags & UTE_FLAG_FORMAT_MASK, !!(flags&UTE_FLAG_ALPHA_IS_TRANSPARENCY),
-	(flags&UTE_FLAG_TEXTUREARRAY)?depth:1,
 	(flags&UTE_FLAG_IS_3D)?3:2, (flags&UTE_FLAG_FILTER_MODE_LINEAR)?1:0,
 	!!(flags & UTE_FLAG_FILTER_MODE_CLAMP_U),
 	!!(flags & UTE_FLAG_FILTER_MODE_CLAMP_V),
 	!!(flags & UTE_FLAG_FILTER_MODE_CLAMP_W),
+	!!(flags & UTE_FLAG_COLOR_SPACE_1 ),
 	bytes );
-
+printf( "%08x\n", flags );
 	int i;
 	for( i = 0; i < bytes; i++ )
 	{
