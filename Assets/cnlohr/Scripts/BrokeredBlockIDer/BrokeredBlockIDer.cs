@@ -11,6 +11,7 @@ using VRC.SDKBase.Editor.BuildPipeline;
 using UnityEditor;
 using UdonSharpEditor;
 using System.Collections.Immutable;
+using System.Collections.Generic;
 #endif
 
 namespace BrokeredUpdates
@@ -333,21 +334,24 @@ namespace UdonSharp
 		public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
 		{
 			if (requestedBuildType == VRCSDKRequestedBuildType.Avatar) return true;
-			BrokeredUpdates.BrokeredBlockIDer [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdates.BrokeredBlockIDer ) ) as BrokeredUpdates.BrokeredBlockIDer[];
-			foreach( BrokeredUpdates.BrokeredBlockIDer b in bs )
+
+			foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
 			{
-				b.UpdateProxy();
-				if( b.brokeredUpdateManager == null )
+				foreach( BrokeredBlockIDer b in go.GetUdonSharpComponentsInChildren< BrokeredBlockIDer >() )
 				{
-					Debug.LogError($"[<color=#FF00FF>BrokeredBlockIDer</color>] Missing brokeredUpdateManager reference on {b.gameObject.name}");
-					typeof(UnityEditor.SceneView).GetMethod("ShowNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, new object[] { $"BrokeredSync missing brokeredUpdateManager reference on {b.gameObject.name}" });
-					return false;				
-				}
-				if( b.customRaycastSystem == null )
-				{
-					Debug.LogError($"[<color=#FF00FF>BrokeredBlockIDer</color>] Missing customRaycastSystem reference on {b.gameObject.name}");
-					typeof(UnityEditor.SceneView).GetMethod("ShowNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, new object[] { $"BrokeredSync missing brokeredUpdateManager reference on {b.gameObject.name}" });
-					return false;				
+					b.UpdateProxy();
+					if( b.brokeredUpdateManager == null )
+					{
+						Debug.LogError($"[<color=#FF00FF>BrokeredBlockIDer</color>] Missing brokeredUpdateManager reference on {b.gameObject.name}");
+						typeof(UnityEditor.SceneView).GetMethod("ShowNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, new object[] { $"BrokeredSync missing brokeredUpdateManager reference on {b.gameObject.name}" });
+						return false;				
+					}
+					if( b.customRaycastSystem == null )
+					{
+						Debug.LogError($"[<color=#FF00FF>BrokeredBlockIDer</color>] Missing customRaycastSystem reference on {b.gameObject.name}");
+						typeof(UnityEditor.SceneView).GetMethod("ShowNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, new object[] { $"BrokeredSync missing brokeredUpdateManager reference on {b.gameObject.name}" });
+						return false;				
+					}
 				}
 			}
 			return true;
@@ -366,47 +370,65 @@ namespace BrokeredUpdates
 			EditorGUILayout.Space();
 			if (GUILayout.Button(new GUIContent("Attach brokeredUpdateManager to all Brokered Sync objects.", "Automatically finds all Brokered Sync objects and attaches the manager.")))
 			{
-				Resources.LoadAll("");
+
 				int ct = 0;
-				BrokeredBlockIDer [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredBlockIDer ) ) as BrokeredBlockIDer[];
-				BrokeredUpdateManager [] managers = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdateManager ) ) as BrokeredUpdateManager[];
-				if( managers.Length < 1 )
+				BrokeredUpdateManager manager = null;
+				foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
+				{
+					foreach( BrokeredUpdateManager b in go.GetUdonSharpComponentsInChildren<BrokeredUpdateManager>() )
+					{
+						manager = b;
+					}
+				}
+				if( manager == null )
 				{
 					Debug.LogError($"[<color=#FF00FF>UdonSharp</color>] Could not find a BrokeredUpdateManager. Did you add the prefab to your scene?");
 					return;
 				}
-				BrokeredUpdateManager manager = managers[0];
-				foreach( BrokeredBlockIDer b in bs )
+
+				foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
 				{
-					b.UpdateProxy();
-					if( b.brokeredUpdateManager == null )
+					foreach( BrokeredBlockIDer b in go.GetUdonSharpComponentsInChildren< BrokeredBlockIDer >() )
 					{
-						Debug.Log( $"Attaching to {b.gameObject.name}" );
-						//https://github.com/MerlinVR/UdonSharp/wiki/Editor-Scripting#non-inspector-editor-scripts
-						b.brokeredUpdateManager = manager;
-						b.ApplyProxyModifications();
-						ct++;
+						b.UpdateProxy();
+						if( b.brokeredUpdateManager == null )
+						{
+							Debug.Log( $"Attaching to {b.gameObject.name}" );
+							//https://github.com/MerlinVR/UdonSharp/wiki/Editor-Scripting#non-inspector-editor-scripts
+							b.brokeredUpdateManager = manager;
+							b.ApplyProxyModifications();
+							ct++;
+						}
 					}
 				}
 
-
-				CustomRaycastSystem [] systems = Resources.FindObjectsOfTypeAll( typeof( CustomRaycastSystem ) ) as CustomRaycastSystem[];
-				if( managers.Length < 1 )
+				CustomRaycastSystem system = null;
+				foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
+				{
+					foreach( CustomRaycastSystem b in go.GetUdonSharpComponentsInChildren<CustomRaycastSystem>() )
+					{
+						system = b;
+					}
+				}
+				if( system == null )
 				{
 					Debug.LogError($"[<color=#FF00FF>UdonSharp</color>] Could not find a CustomRaycastSystem. Did you add the prefab to your scene?");
 					return;
 				}
-				CustomRaycastSystem system = systems[0];
-				foreach( BrokeredBlockIDer b in bs )
+
+				foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
 				{
-					b.UpdateProxy();
-					if( b.customRaycastSystem == null )
+					foreach( BrokeredBlockIDer b in go.GetUdonSharpComponentsInChildren< BrokeredBlockIDer >() )
 					{
-						Debug.Log( $"Attaching to {b.gameObject.name}" );
-						//https://github.com/MerlinVR/UdonSharp/wiki/Editor-Scripting#non-inspector-editor-scripts
-						b.customRaycastSystem = system;
-						b.ApplyProxyModifications();
-						ct++;
+						b.UpdateProxy();
+						if( b.customRaycastSystem == null )
+						{
+							Debug.Log( $"Attaching to {b.gameObject.name}" );
+							//https://github.com/MerlinVR/UdonSharp/wiki/Editor-Scripting#non-inspector-editor-scripts
+							b.customRaycastSystem = system;
+							b.ApplyProxyModifications();
+							ct++;
+						}
 					}
 				}
 
@@ -416,17 +438,19 @@ namespace BrokeredUpdates
 			}
 			if (GUILayout.Button(new GUIContent("Gridify all.", "Snap all objects to grid now.")))
 			{
-				Resources.LoadAll("");
-				BrokeredBlockIDer [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredBlockIDer ) ) as BrokeredBlockIDer[];
 				int ct = 0;
 				int ctb = 0;
-				foreach( BrokeredBlockIDer b in bs )
+				List<BrokeredBlockIDer> bli = new List<BrokeredBlockIDer>();
+				foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
+					foreach( BrokeredBlockIDer b in go.GetUdonSharpComponentsInChildren<BrokeredBlockIDer>() )
+						bli.Add( b );
+				foreach( BrokeredBlockIDer b in bli )
 				{
 					b.UpdateProxy();
 					ct += b._SnapNow()?1:0;
 
 					//Nudge colliding blocks.
-					foreach( BrokeredBlockIDer be in bs )
+					foreach( BrokeredBlockIDer be in bli )
 					{
 						if( be != b )
 						{
@@ -443,17 +467,18 @@ namespace BrokeredUpdates
 			}
 			if (GUILayout.Button(new GUIContent("Randomize IDs.", "Random IDs.")))
 			{
-				Resources.LoadAll("");
-				BrokeredBlockIDer [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredBlockIDer ) ) as BrokeredBlockIDer[];
 				int ct = 0;
-				foreach( BrokeredBlockIDer b in bs )
+				foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
 				{
-					b.UpdateProxy();
-					b.defaultBlockID = (int)Random.Range( 0, 181.99f );
-					ct++;
-					b._SetBlockID( b.defaultBlockID );
-					b._UpdateID();
-					b.ApplyProxyModifications();
+					foreach( BrokeredBlockIDer b in go.GetUdonSharpComponentsInChildren<BrokeredBlockIDer>() )
+					{
+						b.UpdateProxy();
+						b.defaultBlockID = (int)Random.Range( 0, 182.99f );
+						ct++;
+						b._SetBlockID( b.defaultBlockID );
+						b._UpdateID();
+						b.ApplyProxyModifications();
+					}
 				}
 				Debug.Log( $"Randomized {ct}" );
 			}

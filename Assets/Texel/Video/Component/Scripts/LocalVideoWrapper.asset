@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: LocalVideoWrapper
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: b877f981baaf423429d0bcd20d099178,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 797d5c351a4f4194c8e428c07fd7b8f6,
     type: 2}
   udonAssembly: 
   assemblyError: 

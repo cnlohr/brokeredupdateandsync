@@ -392,17 +392,18 @@ namespace UdonSharp
 
 		public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
 		{
-			Resources.LoadAll("");
 			if (requestedBuildType == VRCSDKRequestedBuildType.Avatar) return true;
-			BrokeredUpdates.BrokeredSync [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdates.BrokeredSync ) ) as BrokeredUpdates.BrokeredSync[];
-			foreach( BrokeredUpdates.BrokeredSync b in bs )
+			foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
 			{
-				b.UpdateProxy();
-				if( b.brokeredUpdateManager == null )
+				foreach( BrokeredUpdates.BrokeredSync b in go.GetUdonSharpComponentsInChildren< BrokeredUpdates.BrokeredSync >() )
 				{
-					Debug.LogError($"[<color=#FF00FF>BrokeredSync</color>] Missing brokeredUpdateManager reference on {b.gameObject.name}");
-					typeof(UnityEditor.SceneView).GetMethod("ShowNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, new object[] { $"BrokeredSync missing brokeredUpdateManager reference on {b.gameObject.name}" });
-					return false;				
+					b.UpdateProxy();
+					if( b.brokeredUpdateManager == null )
+					{
+						Debug.LogError($"[<color=#FF00FF>BrokeredSync</color>] Missing brokeredUpdateManager reference on {b.gameObject.name}");
+						typeof(UnityEditor.SceneView).GetMethod("ShowNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, new object[] { $"BrokeredSync missing brokeredUpdateManager reference on {b.gameObject.name}" });
+						return false;				
+					}
 				}
 			}
 			return true;
@@ -422,25 +423,35 @@ namespace BrokeredUpdates
 			int ct = 0;
 			if (GUILayout.Button(new GUIContent("Attach brokeredUpdateManager to all Brokered Sync objects.", "Automatically finds all Brokered Sync objects and attaches the manager.")))
 			{
-				Resources.LoadAll("");
-				BrokeredSync [] bs = Resources.FindObjectsOfTypeAll( typeof( BrokeredSync ) ) as BrokeredSync[];
-				BrokeredUpdateManager [] managers = Resources.FindObjectsOfTypeAll( typeof( BrokeredUpdateManager ) ) as BrokeredUpdateManager[];
-				if( managers.Length < 1 )
+				UnityEngine.Object [] gos = GameObject.FindObjectsOfType(typeof(GameObject)); 
+
+				BrokeredUpdateManager manager = null;
+				foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
+				{
+					foreach( BrokeredUpdateManager b in go.GetUdonSharpComponentsInChildren<BrokeredUpdateManager>() )
+					{
+						manager = b;
+					}
+				}
+				if( manager == null )
 				{
 					Debug.LogError($"[<color=#FF00FF>UdonSharp</color>] Could not find a BrokeredUpdateManager. Did you add the prefab to your scene?");
 					return;
 				}
-				BrokeredUpdateManager manager = managers[0];
-				foreach( BrokeredSync b in bs )
+
+				foreach( UnityEngine.GameObject go in GameObject.FindObjectsOfType(typeof(GameObject)) as UnityEngine.GameObject[] )
 				{
-					b.UpdateProxy();
-					if( b.brokeredUpdateManager == null )
+					foreach( BrokeredSync b in go.GetUdonSharpComponentsInChildren< BrokeredSync >() )
 					{
-						Debug.Log( $"Attaching to {b.gameObject.name}" );
-						//https://github.com/MerlinVR/UdonSharp/wiki/Editor-Scripting#non-inspector-editor-scripts
-						b.brokeredUpdateManager = manager;
-						b.ApplyProxyModifications();
-						ct++;
+						b.UpdateProxy();
+						if( b.brokeredUpdateManager == null )
+						{
+							Debug.Log( $"Attaching to {b.gameObject.name}" );
+							//https://github.com/MerlinVR/UdonSharp/wiki/Editor-Scripting#non-inspector-editor-scripts
+							b.brokeredUpdateManager = manager;
+							b.ApplyProxyModifications();
+							ct++;
+						}
 					}
 				}
 			}

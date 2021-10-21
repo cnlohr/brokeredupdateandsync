@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: MaterialSwapper
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 3f9d48c4396541145b2d6349660ce865,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: dc71a2b31bb593c458989a77dbe7e7fa,
     type: 2}
   udonAssembly: 
   assemblyError: 
