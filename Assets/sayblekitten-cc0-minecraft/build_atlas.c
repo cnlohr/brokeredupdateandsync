@@ -13,7 +13,11 @@
 #define WIDTH  256
 #define HEIGHT 256
 
+#include "unitytexturewriter.h"
+
+
 uint32_t framebuffer[WIDTH][HEIGHT];
+uint32_t framebuffer_out[256][256];
 
 int main()
 {
@@ -31,9 +35,9 @@ int main()
 	int blockx = 0, blocky = 0;
 	
 	int files = (int)mz_zip_reader_get_num_files(&zip_archive);
-	
-	
+
 	printf( "Opened. Zips: %d\n", files );
+
 	for (i = 0; i < files; i++)
 	{
 		mz_zip_archive_file_stat file_stat;
@@ -194,6 +198,15 @@ int main()
 
 	int ret = stbi_write_png( "block_atlas.png", WIDTH, HEIGHT, 4, framebuffer, 4*WIDTH );
 	printf( "stbi_write_png = %d\n", ret );
+
+	for( i = 0; i < 256; i++ )
+	for( y = 0; y < 16; y++ )
+	for( x = 0; x < 16; x++ )
+	{
+		framebuffer_out[i][x+y*16] = framebuffer[(i%16)*16+x][(i/16)*16+y];
+	}
+
+	WriteUnityImageAsset( "block_atlas_array.asset", framebuffer_out, sizeof(framebuffer_out), 16, 16, 256, UTE_RGBA32 | UTE_FLAG_TEXTUREARRAY );
 
 	return 0;
 }
