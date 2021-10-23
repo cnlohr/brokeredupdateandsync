@@ -20,6 +20,8 @@
         #pragma surface surf Standard fullforwardshadows addshadow 
 		#pragma require 2darray
         #pragma target 5.0
+		
+		#include "../AudioLink/Shaders/AudioLink.cginc"
 
 		//sampler2D _MineTexX;
         UNITY_DECLARE_TEX2DARRAY( _MineTex );
@@ -44,6 +46,43 @@
 			float4 _InstanceID;
         UNITY_INSTANCING_BUFFER_END(Props)
 
+		float4 GetAdvancedColor( float2 uv, float2 rawuv, uint blockid )
+		{
+			blockid -= 192;
+			if( blockid < 4 )
+			{
+				float uvc = length(uv-0.5)*100;
+				return UNITY_SAMPLE_TEX2DARRAY( _MineTex, float4( uv, 112, 0 ) ) * AudioLinkData( ALPASS_CCCOLORS + uint2( blockid + 1, 0 ) ) * (AudioLinkData( ALPASS_AUDIOLINK + uint2( uvc, blockid ))*2.0 + .2); 
+			}
+			else if( blockid == 5 )
+			{
+				float phi = atan2( rawuv.x-0.5, rawuv.y-0.5 ) / 3.14159;
+				float placeinautocorrelator = abs( phi );
+				float autocorrvalue = AudioLinkLerp( ALPASS_AUTOCORRELATOR +
+					float2( placeinautocorrelator * AUDIOLINK_WIDTH, 0. ) );
+				float r = length( rawuv -0.5 )*6;
+				float acmax = AudioLinkLerp( ALPASS_AUTOCORRELATOR ) * 0.2 + .6; 
+				float rpos = r / (autocorrvalue/acmax + 2);
+				float4 colr = AudioLinkLerp( ALPASS_CCSTRIP + float2( rpos*128, 0 ) );
+				float4 ocolor = (rpos < 1)?colr:0;
+				return (ocolor+.02) * UNITY_SAMPLE_TEX2DARRAY( _MineTex, float4( uv, 112, 0 ) );
+			}
+			else if( blockid == 6 )
+			{
+				uint2 uvx = uint2( floor(rawuv*8).xy );
+				return AudioLinkData( ALPASS_CCLIGHTS + uint2( uvx.x + uvx.y*8, 0) );
+			}
+			else if( blockid == 7 )
+			{
+				uint2 uvx = uint2( floor(rawuv*8).xy );
+				return AudioLinkData( ALPASS_CCLIGHTS + uint2( uvx.x + uvx.y*8+64, 0) );
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
 			int cursor0 = UNITY_ACCESS_INSTANCED_PROP(Props, _InstanceID).z;
@@ -66,7 +105,11 @@
 				coord *= 1./16.;
 				if( _OverrideBlockID >= 0 )
 					coord = frac( coord );
-				c = UNITY_SAMPLE_TEX2DARRAY( _MineTex, float4( coord, blockID, 0 ) );
+				
+				if( blockID >= 192 && blockID < 208 )
+					c = GetAdvancedColor( coord, uv, blockID );
+				else
+					c = UNITY_SAMPLE_TEX2DARRAY( _MineTex, float4( coord, blockID, 0 ) );
 
 
 				//newuv += uvoffset;
@@ -97,7 +140,11 @@
 				//float2 newuv = (localuv/16) + (float2( localblockid % 16, localblockid / 16 )/16.0);
 				float2 newuv = localuv;
 				newuv.y = 1-newuv.y;
-				c = UNITY_SAMPLE_TEX2DARRAY(_MineTex, float4( newuv, localblockid, 0 ));
+
+				if( localblockid >= 192 && localblockid < 208 )
+					c = GetAdvancedColor( newuv, localuv, localblockid );
+				else
+					c = UNITY_SAMPLE_TEX2DARRAY(_MineTex, float4( newuv, localblockid, 0 ));
 
 				if( localblockid >= 251 )
 				{
