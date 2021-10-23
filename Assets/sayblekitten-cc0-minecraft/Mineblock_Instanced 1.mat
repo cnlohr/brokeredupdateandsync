@@ -51,6 +51,10 @@ Material:
         m_Texture: {fileID: 18700000, guid: ef67f69d2d64ca44dbb7a48618a9b1ba, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MineTexX:
+        m_Texture: {fileID: 2800000, guid: f2117f2ce578eb74e9f550a788ded444, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}

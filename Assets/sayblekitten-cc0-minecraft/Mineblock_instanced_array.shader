@@ -4,6 +4,7 @@
     {
         _Color ("Color", Color) = (1,1,1,1)
         _MineTex ("Albedo (RGB)", 2DArray) = "white" {}
+        //_MineTexX ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
 		_OverrideBlockID ("Override Block ID", Range(-1,240) ) = -1
@@ -20,7 +21,7 @@
 		#pragma require 2darray
         #pragma target 5.0
 
-
+		//sampler2D _MineTexX;
         UNITY_DECLARE_TEX2DARRAY( _MineTex );
 		float4 _MineTex_TexelSize;
 		
@@ -67,59 +68,25 @@
 					coord = frac( coord );
 				c = UNITY_SAMPLE_TEX2DARRAY( _MineTex, float4( coord, blockID, 0 ) );
 
-#if 0
-				float2 newuv = uv/16.0;
-				float2 uvoffset = float2( blockID % 16, blockID / 16 )/16.0;
 
-				float2 markdiffx = ddx( uv/16.)/(AA_AXES_STEPS+1);
-				float2 markdiffy = ddy( uv/16.)/(AA_AXES_STEPS+1);
-				
-				//Going over seams cause the ddx to be way weird.
-				if( length( abs( markdiffy ) + abs( markdiffx ) ) > .01 ) { markdiffx = markdiffy = 0; }
-				
-				float invsharp = 1.5;
-				markdiffy *= invsharp;
-				markdiffx *= invsharp;
-				
-				uint ix, iy;
-				[unroll]
-				for( iy = 0; iy < AA_AXES_STEPS; iy++ )
-				{
-					[unroll]
-					for( ix = 0; ix < AA_AXES_STEPS; ix++ )
-					{
-						float2 xyofs = (markdiffx*ix+markdiffy*iy);
-						float2 innerofs = ( newuv + xyofs ) * 16;
-						innerofs = frac( innerofs );
-						float2 uvl = innerofs / 16;
-						uvl = uvl + uvoffset;
-						uvl.y = 1-uvl.y;
-						c += UNITY_SAMPLE_TEX2DARRAY(_MineTex, float4( uvl, 0, 0 ) );
-					}
-				}
-				c /= (AA_AXES_STEPS*AA_AXES_STEPS);
-
-//				c = tex2Dlod(_MineTex, float4( newuv, 0, 0 ));
-
-				newuv += uvoffset;
-				newuv.y = 1-newuv.y;
-				float2 uvbase = floor( newuv * 256 ) / 256.;
-				float2 dlxy = 1./256;
-				float2 clxy = frac( newuv * 256 );
-				float4 cob1a = tex2Dlod(_MineTex, float4( uvbase+float2(0,0), 0, 0 )) * _Color;
-				float4 cob1b = tex2Dlod(_MineTex, float4( uvbase+float2(dlxy.x,0), 0, 0 )) * _Color;
-				float4 cob1c = tex2Dlod(_MineTex, float4( uvbase+float2(0,dlxy.y), 0, 0 )) * _Color;
-				float4 cob1d = tex2Dlod(_MineTex, float4( uvbase+dlxy, 0, 0 )) * _Color;
+				//newuv += uvoffset;
+				//newuv.y = 1-newuv.y;
+				float2 uvbase = coord;//floor( newuv * 256 ) / 256.;
+				float2 dlxy = 1./16.;
+				float2 clxy = frac( coord * 16 );
+				float4 cob1a = UNITY_SAMPLE_TEX2DARRAY(_MineTex, float4( uvbase+float2(0,0), blockID, 0 )) * _Color;
+				float4 cob1b = UNITY_SAMPLE_TEX2DARRAY(_MineTex, float4( uvbase+float2(dlxy.x,0), blockID, 0 )) * _Color;
+				float4 cob1c = UNITY_SAMPLE_TEX2DARRAY(_MineTex, float4( uvbase+float2(0,dlxy.y), blockID, 0 )) * _Color;
+				float4 cob1d = UNITY_SAMPLE_TEX2DARRAY(_MineTex, float4( uvbase+dlxy, blockID, 0 )) * _Color;
 				float4 cob1 = lerp( lerp( cob1a, cob1b, clxy.x ), lerp( cob1c, cob1d, clxy.x ), clxy.y );
 				o.Normal = normalize( float3( 0, 0, 1 ) + cob1.xyz*.5 );
-				#endif
-				
+			
 			}
 			else
 			{
 				cursor0--;
 				cursor1--;
-#if 0
+#if 1
 				// Currently used block ID.
 				uint bvy = (uint)UNITY_ACCESS_INSTANCED_PROP(Props, _InstanceID).y;
 				uint blockID = bvy%256;
@@ -127,10 +94,10 @@
 
 				int localblockid = floor( IN.uv_MineTex.x * 16 ) + floor( IN.uv_MineTex.y * 16 ) * 16;
 				float2 localuv = frac( IN.uv_MineTex * 16 );
-				float2 newuv = (localuv/16) + (float2( localblockid % 16, localblockid / 16 )/16.0);
+				//float2 newuv = (localuv/16) + (float2( localblockid % 16, localblockid / 16 )/16.0);
+				float2 newuv = localuv;
 				newuv.y = 1-newuv.y;
-
-				c = tex2Dlod(_MineTex, float4( newuv, 0, 0 ));
+				c = UNITY_SAMPLE_TEX2DARRAY(_MineTex, float4( newuv, localblockid, 0 ));
 
 				if( localblockid >= 251 )
 				{
