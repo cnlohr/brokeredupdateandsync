@@ -128,8 +128,11 @@ namespace BrokeredUpdates
 
 					if( Utilities.IsValid( thisRigidBody ) )
 					{
-						thisRigidBody.velocity = new Vector3( 0, 0, 0 );
-						thisRigidBody.angularVelocity = new Vector3( 0, 0, 0 );
+						if( !thisRigidBody.isKinematic )
+						{
+							thisRigidBody.velocity = new Vector3( 0, 0, 0 );
+							thisRigidBody.angularVelocity = new Vector3( 0, 0, 0 );
+						}
 					}
 					SendUpdateSystemAsMaster();
 				}
@@ -207,7 +210,8 @@ namespace BrokeredUpdates
 				thisRigidBody.isKinematic = bKinematicOnRelease;
 				if( bKinematicOnRelease )
 				{
-					thisRigidBody.velocity = new Vector3( 0, 0, 0 );
+					if( !thisRigidBody.isKinematic )
+						thisRigidBody.velocity = new Vector3( 0, 0, 0 );
 					thisRigidBody.Sleep();
 				}
 			}
@@ -234,7 +238,8 @@ namespace BrokeredUpdates
 					// Do this so if we were moving SUPER slowly, we actually stop.
 					if( Utilities.IsValid( thisRigidBody ) )
 					{
-						thisRigidBody.velocity = new Vector3( 0, 0, 0 );
+						if( !thisRigidBody.isKinematic )
+							thisRigidBody.velocity = new Vector3( 0, 0, 0 );
 						thisRigidBody.Sleep();
 					}
 
@@ -423,7 +428,7 @@ namespace UdonSharp
 					b.UpdateProxy();
 					if( b.brokeredUpdateManager == null )
 					{
-						Debug.LogError($"[<color=#FF00FF>BrokeredSync</color>] Missing brokeredUpdateManager reference on {b.gameObject.name}");
+						Debug.LogError($"[<color=#FF00FF>BrokeredSync</color>] Missing brokeredUpdateManager reference on {b.gameObject.name}", go);
 						typeof(UnityEditor.SceneView).GetMethod("ShowNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, new object[] { $"BrokeredSync missing brokeredUpdateManager reference on {b.gameObject.name}" });
 						return false;				
 					}
